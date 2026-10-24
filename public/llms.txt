@@ -1,0 +1,22 @@
+# Rough Notebook
+
+> Free keyboard-first digital rough notebook for DSA, algorithms, and coding interview practice: freeform notes, arrays, matrices, and manual tracing on a warm paper canvas.
+
+## Product
+- Name: Rough Notebook
+- Tagline: Think it. Trace it. Solve it.
+- Author: Shambhoo Narwaria
+- Stack: Svelte 5, TypeScript, Vite, Cloudflare Workers
+
+## Features
+- Keyboard-first navigation (⌘/ or Ctrl+/ to insert, Tab to navigate cells)
+- Smart auto-create from pasted testcase arrays & matrices
+- Frictionless freehand pen drawing layer with per-stroke undo
+- Warm paper canvas aesthetic with subtle dot grid
+
+## Links
+- GitHub: https://github.com/shambhoo-narwaria/Rough-Notebook
+- Open Graph Image: /og.png
+- Sitemap: /sitemap.xml
+- Robots: /robots.txt
+
