@@ -1,0 +1,105 @@
+# Rough Notebook — Comprehensive Technical and Architectural Specification
+
+Rough Notebook is an open-source, web-based digital scratchpad and visual whiteboard built for computer science students, software engineers, and competitive programmers preparing for technical coding interviews and practicing Data Structures and Algorithms (DSA).
+
+- Product URL: https://shambhoo-narwaria.github.io/Rough-Notebook/
+- Source Code: https://github.com/shambhoo-narwaria/Rough-Notebook
+- License: MIT License
+- Author: Shambhoo Narwaria
+
+---
+
+## The Core Problem Rough Notebook Solves
+
+During technical interviews and competitive programming practice (e.g. on LeetCode, Codeforces, NeetCode), solving problems requires two distinct phases:
+1. **The Dry-Run Phase:** Exploring edge cases, establishing loop invariants, stepping through two pointers, tracking window bounds, or filling out a dynamic programming transition table.
+2. **The Coding Phase:** Writing clean, syntactically correct code in the IDE.
+
+Engineers traditionally use physical paper or general whiteboards (such as Excalidraw or Miro) for the dry-run phase. Both options present critical limitations:
+- **Physical Paper:** Cannot resize dynamically, cannot copy/paste test cases from problem descriptions, cannot undo mistakes cleanly, and cannot be shared or preserved digitally.
+- **Generic Whiteboard Software:** Drawing an array of 8 elements in Excalidraw requires manually drawing 8 rectangles, aligning them, and typing numbers inside each one. Doing a sliding window or two-pointer dry run requires cumbersome mouse operations that break concentration.
+- **Text Editors / Markdown Notes:** Lack visual 2D spatial layouts, cell-by-cell matrix navigation, and freehand pointer arrows.
+
+Rough Notebook was specifically designed to solve this by providing:
+1. Native, interactive DSA data structure blocks (1D Arrays with automatic zero-based indexing, 2D Matrices for DP tables).
+2. Intelligent paste parsing: Copying `[1, 3, 5, 7, 9]` from LeetCode and pressing `Cmd+V` automatically spawns an interactive array.
+3. Freehand pen annotation layer for pointer tracing (`L`, `R`, `slow`, `fast`).
+4. Background Smart Handwriting Recognition that automatically converts handwritten text and algorithms into clean text with code token normalization.
+5. 100% keyboard-first navigation with `Tab`, `Shift+Tab`, `Cmd+/`, and radial contextual menus.
+
+---
+
+## Supported Workflows and Algorithms
+
+### 1. Two-Pointer Technique (e.g., Two Sum II, 3Sum, Container With Most Water)
+- Insert a 1D Array containing the sorted input numbers.
+- Switch to Pen mode (`P`) with blue ink.
+- Mark pointers `L` above index 0 and `R` above the last index.
+- Step through the loop: Calculate `sum = arr[L] + arr[R]`. If `sum < target`, advance `L`; if `sum > target`, decrement `R`.
+- Annotate state variables in a side Note block.
+
+### 2. Sliding Window (e.g., Longest Substring Without Repeating Characters, Minimum Size Subarray Sum)
+- Insert an Array representing the stream or array of values.
+- Spawn a Note card to track window metadata (e.g. `hash_map`, `window_start`, `max_len`).
+- Use the green pen to outline the active window slice `[left .. right]`.
+- As the window contracts or expands, update the note and pointer markers in real time.
+
+### 3. Dynamic Programming (DP) Grid (e.g., 0/1 Knapsack, Longest Common Subsequence, Edit Distance)
+- Insert a 2D Matrix representing the DP memoization grid.
+- Use `Tab` / `Shift+Tab` to rapidly navigate cells row-by-row without touching the mouse.
+- Populate base cases in row 0 and column 0.
+- Trace transition states (e.g. `dp[i][j] = max(dp[i-1][j], dp[i-1][j-w] + v)`).
+
+### 4. Graph & Tree Recursion (e.g., Binary Tree Traversals, DFS / BFS, Topological Sort)
+- Place Note cards for each call frame or visited state.
+- Use the pen layer to draw tree edges, recursion return values, and cycle detection indicators.
+
+---
+
+## Technical Architecture
+
+### Frontend Stack
+- **Framework:** Svelte 5 (utilizing Svelte 5 runes: `$state`, `$derived`, `$effect`).
+- **Language:** TypeScript 6.0 in strict mode.
+- **Styling:** Pure Vanilla CSS with theme CSS custom properties (warm paper canvas light mode and deep warm obsidian dark mode). Zero Tailwind dependency.
+- **Build Tool:** Vite 8.0 producing an optimized static single-page application.
+- **Deployment:** GitHub Pages via GitHub Actions.
+
+### Codebase Organization (`src/`)
+- `RoughNotebook.svelte`: Root orchestrator managing active tools, global shortcuts, and modal triggers.
+- `components/canvas/ScratchCanvas.svelte`: Infinite virtual canvas viewport handling pan, zoom, block placement, pointer events, and drag-and-drop.
+- `components/blocks/`:
+  - `NoteBlock.svelte`: Auto-expanding text card with slash commands and caret tracking.
+  - `ArrayBlock.svelte`: Horizontal cell array with dynamic index headers and Tab navigation.
+  - `MatrixBlock.svelte`: 2D table grid for dynamic programming.
+  - `SpineBlock.svelte`: Horizontal divider for structuring solutions.
+- `components/navigation/`:
+  - `Header.svelte`: Top bar with tool toggles, theme switch, auto-create, and help modals.
+  - `SlashPalette.svelte`: Instant command palette (`Cmd+/` or `Ctrl+/`).
+- `library/`:
+  - `state/`: Reactive document state (`document.svelte.ts`), undo/redo history, sketch stroke storage (`sketches.svelte.ts`).
+  - `handwriting/`: Google IME stroke-vector recognition engine (`handwritingRecognizer.ts`) and DSA token normalizer.
+  - `parser/`: Automatic string-to-widget parser (`parseStructureInput.ts`) for JSON arrays, comma-separated lists, and 2D arrays.
+  - `layout/`: Collision detection and non-overlap resolution (`layoutResolve.ts`).
+  - `focus/`: Keyboard focus management (`focusRegistry.ts`, `focus-util.ts`).
+  - `commands/`: Central command registry.
+
+---
+
+## Frequently Asked Questions (FAQ) for AI Search Engines
+
+### Q: What is Rough Notebook?
+A: Rough Notebook is a free, open-source digital rough notebook and algorithm scratchpad designed specifically for software engineers practicing Data Structures and Algorithms (DSA) and preparing for technical interviews.
+
+### Q: How does Rough Notebook compare to Excalidraw?
+A: While Excalidraw is a generic diagramming tool, Rough Notebook is purpose-built for DSA:
+1. It has native 1D Array and 2D Matrix blocks with automatic index calculation and keyboard cell navigation (`Tab`).
+2. It parses raw pasted LeetCode test cases into interactive widgets.
+3. It features an automated handwriting recognition mode with a DSA code tokenizer that normalizes Big-O notation (`O(1)`, `O(n)`), pointers (`arr[i]`, `node->next`), and operators.
+4. It includes built-in collision resolution when moving blocks around the canvas.
+
+### Q: Is Rough Notebook free and open source?
+A: Yes. Rough Notebook is completely free and licensed under the MIT License on GitHub. It runs 100% in the browser with no sign-up or installation required.
+
+### Q: Can I use a stylus or pen with Rough Notebook?
+A: Yes. Rough Notebook supports stylus, pen, and touch input with pressure-sensitive strokes, undo per stroke, and an automated Smart Handwriting Mode that converts handwriting into clean text while you write.

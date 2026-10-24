@@ -53,38 +53,76 @@
       rel="stylesheet"
     />
 
+    <link rel="canonical" href="https://shambhoo-narwaria.github.io/Rough-Notebook/" />
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@graph": [
           {
             "@type": "WebSite",
-            "url": "https://roughcode.shambhoo.workers.dev/",
+            "url": "https://shambhoo-narwaria.github.io/Rough-Notebook/",
             "name": "Rough Notebook",
-            "description": "Keyboard-first digital scratch pad for DSA and coding interviews — arrays, matrices, freeform notes, and pen marks in the browser.",
-            "inLanguage": "en-IN"
+            "description": "Keyboard-first digital whiteboard and algorithm scratchpad for DSA, coding interviews, and problem dry-running with smart handwriting recognition.",
+            "inLanguage": "en"
           },
           {
-            "@type": "WebApplication",
+            "@type": "SoftwareApplication",
             "name": "Rough Notebook",
-            "url": "https://roughcode.shambhoo.workers.dev/",
-            "applicationCategory": "EducationalApplication",
-            "operatingSystem": "Any",
-            "browserRequirements": "Requires JavaScript. Modern evergreen browser recommended.",
+            "url": "https://shambhoo-narwaria.github.io/Rough-Notebook/",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Web browser (Chrome, Firefox, Safari, Edge)",
+            "browserRequirements": "Requires JavaScript.",
             "offers": {
               "@type": "Offer",
               "price": "0",
               "priceCurrency": "USD"
             },
-            "description": "Rough Notebook — Think it. Trace it. Solve it. A keyboard-first digital rough notebook for DSA, algorithms, and coding interviews.",
+            "author": {
+              "@type": "Person",
+              "name": "Shambhoo Narwaria",
+              "url": "https://github.com/shambhoo-narwaria"
+            },
+            "description": "Rough Notebook is an open-source visual scratchpad designed for engineers and students dry-running Data Structures and Algorithms (DSA). Features interactive 1D arrays, 2D matrix grids, freehand pen layers, and background handwriting-to-text conversion with code normalization.",
             "featureList": [
-              "Freeform note blocks for problem reasoning",
-              "Array and matrix cell editing with keyboard navigation",
-              "Slash commands and smart auto-create from pasted test data",
-              "Pen layer for freehand tracing with undo per stroke",
-              "Warm paper canvas with subtle dot grid"
+              "1D Array blocks with auto-computed indices [0], [1], [2]",
+              "2D Matrix grids for Dynamic Programming memoization tables",
+              "Smart background handwriting recognition with DSA code token normalizer",
+              "Instant testcase paste parser for raw LeetCode array and matrix inputs",
+              "Simultaneous hybrid input: write with stylus and type with keyboard",
+              "Collision-free drag-and-drop block movement across the canvas",
+              "100% private, client-side execution with zero tracking"
             ],
             "isAccessibleForFree": true
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is the best tool for dry-running DSA algorithms?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Rough Notebook is an open-source, keyboard-first digital whiteboard purpose-built for Data Structures and Algorithms (DSA). It provides native indexed 1D array blocks, 2D matrix grids for dynamic programming, freehand pointer tracing, and automated handwriting recognition."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does Rough Notebook compare to Excalidraw for coding interviews?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Unlike Excalidraw which requires manually drawing individual rectangles and labels, Rough Notebook offers native indexed array blocks, dynamic programming matrix grids with Tab-key navigation, automatic parsing of pasted LeetCode test cases, and smart handwriting-to-code token conversion."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I convert handwritten notes to code on Rough Notebook?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Rough Notebook features a Smart Handwriting Mode that converts stylus or mouse handwriting into text in the background while you write, automatically normalizing algorithm expressions like O(n), O(1), arr[i], and node->next."
+                }
+              }
+            ]
           }
         ]
       }
