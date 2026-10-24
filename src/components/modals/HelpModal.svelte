@@ -72,9 +72,9 @@
             <td>Convert lists like <code class="help-code">[1,2,3]</code> or <code class="help-code">[[1,2],[3,4]]</code> automatically into widgets.</td>
           </tr>
           <tr>
-            <td class="topic-td"><span class="badge-topic">Quick Tools Wheel</span></td>
-            <td>Click empty canvas</td>
-            <td>Open 4-tool radial wheel for Note, Array, Matrix, or Pen.</td>
+            <td class="topic-td"><span class="badge-topic">Left Tool Palette</span></td>
+            <td>Left side dock</td>
+            <td>One-click or drag-and-drop Note, 1D Array, 2D Matrix, or Pen tool directly to canvas.</td>
           </tr>
           <tr>
             <td class="topic-td"><span class="badge-topic">Pen Layer</span></td>

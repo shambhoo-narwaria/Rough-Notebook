@@ -99,7 +99,7 @@ RoughNotebook.svelte (Main Coordinator)
 |   |       |   +-- MatrixBlock.svelte
 |   |       |   +-- NoteBlock.svelte
 |   |       |   +-- SpineBlock.svelte
-|   |       +-- CanvasRadialMenu.svelte (Quick tools wheel on empty canvas click)
+|   |       +-- SideToolbar.svelte (Vertical left dock for Note, Array, Matrix, Pen)
 |   |       +-- StructureMenu.svelte (Context menu on block right-click)
 |
 +-- SlashPalette.svelte (Keyboard Command Palette, bound to Cmd/Ctrl + /)

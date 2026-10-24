@@ -388,7 +388,7 @@
   data-editor-shell
   onpointerdown={(e) => {
     const el = e.target as HTMLElement;
-    if (el.closest('.viewport') || el.closest('.radial-menu')) return;
+    if (el.closest('.viewport') || el.closest('.side-toolbar')) return;
     doc.insertAnchor = null;
     const id = doc.selectedBlockId;
     if (id) {

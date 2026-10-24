@@ -140,7 +140,7 @@ flowchart TD
         Shell["RoughNotebook.svelte"]
         Header["Header.svelte"]
         Canvas["ScratchCanvas.svelte"]
-        Radial["CanvasRadialMenu.svelte"]
+        Toolbar["SideToolbar.svelte"]
         Palette["SlashPalette.svelte"]
         Blocks["Note / Array / Matrix Blocks"]
     end
@@ -161,7 +161,7 @@ flowchart TD
     Shell --> Canvas
     Shell --> Palette
     Canvas --> Blocks
-    Canvas --> Radial
+    Canvas --> Toolbar
 
     Canvas --> DocStore
     Canvas --> SketchStore
@@ -191,7 +191,7 @@ Rough-Notebook/
 ├── src/
 │   ├── components/
 │   │   ├── blocks/         # NoteBlock, ArrayBlock, MatrixBlock, SpineBlock
-│   │   ├── canvas/         # ScratchCanvas, CanvasRadialMenu, PenRadialMenu
+│   │   ├── canvas/         # ScratchCanvas, SideToolbar, PenRadialMenu
 │   │   ├── modals/         # HelpModal, AutoCreateModal, DimensionModal, ClearConfirmModal
 │   │   └── navigation/     # Header bar, SlashPalette command menu
 │   ├── library/            # Logic, data structures, and algorithmic helpers

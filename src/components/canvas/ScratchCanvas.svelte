@@ -21,13 +21,14 @@
     registerHandwritingConversion,
   } from "@/library/state/sketches.svelte";
   import { recognizeHandwritingStrokes } from "@/library/handwriting/handwritingRecognizer";
+  import { fetchDynamicSuggestions } from "@/library/suggestions/dynamicSuggestions";
   import { resolveNonOverlapForBlock } from "@/library/layout/layoutResolve";
   import NoteBlock from "@/components/blocks/NoteBlock.svelte";
   import ArrayBlock from "@/components/blocks/ArrayBlock.svelte";
   import MatrixBlock from "@/components/blocks/MatrixBlock.svelte";
   import SpineBlock from "@/components/blocks/SpineBlock.svelte";
   import StructureMenu from "./StructureMenu.svelte";
-  import CanvasRadialMenu from "./CanvasRadialMenu.svelte";
+  import SideToolbar from "./SideToolbar.svelte";
   import { focusBlockRoot } from "@/library/focus/focusRegistry";
 
   type Props = {
@@ -439,11 +440,140 @@
     }
   }
 
+  function getViewportPlacementPoint(): { x: number; y: number } {
+    if (doc.insertAnchor) return doc.insertAnchor;
+    if (!canvasEl) return { x: 300, y: 200 };
+    return {
+      x: Math.round(canvasEl.scrollLeft + canvasEl.clientWidth / 2 - 100),
+      y: Math.round(canvasEl.scrollTop + canvasEl.clientHeight / 2 - 80),
+    };
+  }
+
+  function handleSelectNote() {
+    const pt = getViewportPlacementPoint();
+    const placed = placeBlockAt(createNoteBlock(), pt.x - 4, pt.y - 4);
+    doc.selectedBlockId = placed.id;
+    doc.insertAnchor = null;
+    void tick().then(() => focusBlockRoot(placed.id));
+  }
+
+  function handleSelectArray() {
+    const pt = getViewportPlacementPoint();
+    const placed = placeBlockAt(createArrayBlock(4), pt.x, pt.y);
+    doc.selectedBlockId = placed.id;
+    doc.cellLinearFocus = 0;
+    doc.insertAnchor = null;
+    void tick().then(() => focusBlockRoot(placed.id));
+  }
+
+  function handleSelectMatrix() {
+    const pt = getViewportPlacementPoint();
+    const placed = placeBlockAt(createMatrixBlock(3, 3), pt.x, pt.y);
+    doc.selectedBlockId = placed.id;
+    doc.cellLinearFocus = 0;
+    doc.insertAnchor = null;
+    void tick().then(() => focusBlockRoot(placed.id));
+  }
+
+  function onCanvasDragOver(e: DragEvent) {
+    if (e.dataTransfer?.types.includes('application/rough-tool')) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  }
+
+  function onCanvasDrop(e: DragEvent) {
+    const tool = e.dataTransfer?.getData('application/rough-tool');
+    if (!tool) return;
+    e.preventDefault();
+    const p = canvasPointFromClient(e.clientX, e.clientY);
+    if (!p) return;
+
+    if (tool === 'note') {
+      const placed = placeBlockAt(createNoteBlock(), p.x - 4, p.y - 4);
+      doc.selectedBlockId = placed.id;
+      void tick().then(() => focusBlockRoot(placed.id));
+    } else if (tool === 'array') {
+      const placed = placeBlockAt(createArrayBlock(4), p.x, p.y);
+      doc.selectedBlockId = placed.id;
+      doc.cellLinearFocus = 0;
+      void tick().then(() => focusBlockRoot(placed.id));
+    } else if (tool === 'matrix') {
+      const placed = placeBlockAt(createMatrixBlock(3, 3), p.x, p.y);
+      doc.selectedBlockId = placed.id;
+      doc.cellLinearFocus = 0;
+      void tick().then(() => focusBlockRoot(placed.id));
+    }
+  }
+
+  const activeNote = $derived(
+    doc.selectedBlockId
+      ? (doc.blocks.find(
+          (b) => b.id === doc.selectedBlockId && b.type === "note"
+        ) as (PlacedBlock & { type: "note"; content: string }) | undefined)
+      : null
+  );
+
+  let dynamicSuggestionsList = $state<string[]>([]);
+
+  let suggestionDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  $effect(() => {
+    const text = activeNote?.content ?? "";
+    if (suggestionDebounceTimer) clearTimeout(suggestionDebounceTimer);
+    suggestionDebounceTimer = setTimeout(() => {
+      void fetchDynamicSuggestions(text).then((res) => {
+        dynamicSuggestionsList = res;
+      });
+    }, 180);
+  });
+
+  function insertSuggestion(token: string) {
+    let targetNote = activeNote;
+
+    if (!targetNote) {
+      const existing = doc.blocks.find((b) => b.type === "note") as
+        | (PlacedBlock & { type: "note"; content: string })
+        | undefined;
+      if (existing) {
+        targetNote = existing;
+        doc.selectedBlockId = existing.id;
+      } else {
+        const pt = getViewportPlacementPoint();
+        const placed = placeBlockAt(createNoteBlock(), pt.x - 4, pt.y - 4);
+        doc.selectedBlockId = placed.id;
+        targetNote = placed as PlacedBlock & { type: "note"; content: string };
+      }
+    }
+
+    if (targetNote) {
+      const cur = String(targetNote.content ?? "");
+      const needsSpace =
+        cur.length > 0 &&
+        !cur.endsWith(" ") &&
+        !cur.endsWith("\n") &&
+        !token.startsWith(".") &&
+        !token.startsWith("[");
+      targetNote.content = cur + (needsSpace ? " " : "") + token + " ";
+
+      void tick().then(() => {
+        const ta = canvasEl?.querySelector(
+          `[data-block-id="${targetNote!.id}"] textarea.note-ta`
+        ) as HTMLTextAreaElement | null;
+        if (ta) {
+          ta.focus();
+          ta.selectionStart = ta.value.length;
+          ta.selectionEnd = ta.value.length;
+        }
+      });
+    }
+  }
+
   function onViewportPointerDown(e: PointerEvent) {
     if (penActive) return;
     if (e.button !== 0 && e.button !== 1) return;
     const t = e.target as HTMLElement;
-    if (t.closest(".radial-menu")) return;
+    if (t.closest(".side-toolbar")) return;
 
     if (e.button === 1) {
       isPanning = true;
@@ -787,46 +917,18 @@
   ondblclick={onViewportDblClick}
   onselectstart={onCanvasSelectStart}
   ondragstart={onCanvasDragStart}
+  ondragover={onCanvasDragOver}
+  ondrop={onCanvasDrop}
 >
-  <div class="canvas-surface">
-    {#if doc.insertAnchor}
-      <CanvasRadialMenu
-        x={doc.insertAnchor.x}
-        y={doc.insertAnchor.y}
-        {penActive}
-        onSelectNote={() => {
-          if (!doc.insertAnchor) return;
-          const placed = placeBlockAt(createNoteBlock(), doc.insertAnchor.x - 4, doc.insertAnchor.y - 4);
-          doc.selectedBlockId = placed.id;
-          doc.insertAnchor = null;
-          void tick().then(() => focusBlockRoot(placed.id));
-        }}
-        onSelectArray={() => {
-          if (!doc.insertAnchor) return;
-          const placed = placeBlockAt(createArrayBlock(4), doc.insertAnchor.x, doc.insertAnchor.y);
-          doc.selectedBlockId = placed.id;
-          doc.cellLinearFocus = 0;
-          doc.insertAnchor = null;
-          void tick().then(() => focusBlockRoot(placed.id));
-        }}
-        onSelectMatrix={() => {
-          if (!doc.insertAnchor) return;
-          const placed = placeBlockAt(createMatrixBlock(3, 3), doc.insertAnchor.x, doc.insertAnchor.y);
-          doc.selectedBlockId = placed.id;
-          doc.cellLinearFocus = 0;
-          doc.insertAnchor = null;
-          void tick().then(() => focusBlockRoot(placed.id));
-        }}
-        onTogglePen={() => {
-          onTogglePen?.();
-          doc.insertAnchor = null;
-        }}
-        onClose={() => {
-          doc.insertAnchor = null;
-        }}
-      />
-    {/if}
+  <SideToolbar
+    {penActive}
+    onSelectNote={handleSelectNote}
+    onSelectArray={handleSelectArray}
+    onSelectMatrix={handleSelectMatrix}
+    onTogglePen={() => onTogglePen?.()}
+  />
 
+  <div class="canvas-surface">
     {#each doc.blocks as b (b.id)}
       {#if b.type === "spine"}
         <div
@@ -1057,30 +1159,42 @@
         <span class="island-status-dot" class:pulse={isRecognizingHandwriting}></span>
         <span class="island-title">
           {#if isRecognizingHandwriting}
-            Converting text...
-          {:else if doc.selectedBlockId && doc.blocks.some((b) => b.id === doc.selectedBlockId && b.type === "note")}
-            Writing into Active Note (Drag to move)
+            Converting...
+          {:else if activeNote}
+            Active Note
           {:else if doc.selectedBlockId}
-            Block Selected (Drag to move)
+            Selected
           {:else}
-            Smart Pen (Write anywhere or tap a note)
+            Smart Pen
           {/if}
         </span>
       </div>
 
+      {#if dynamicSuggestionsList.length > 0}
+        <div class="island-suggestions" role="group" aria-label="Next word suggestions">
+          {#each dynamicSuggestionsList as sug (sug)}
+            <button
+              type="button"
+              class="suggestion-chip"
+              onclick={() => insertSuggestion(sug)}
+              title={`Insert "${sug}"`}
+            >
+              {sug}
+            </button>
+          {/each}
+        </div>
+      {/if}
+
       <div class="island-actions">
-        {#if doc.selectedBlockId && doc.blocks.some((b) => b.id === doc.selectedBlockId && b.type === "note")}
+        {#if activeNote}
           <button
             type="button"
             class="island-btn"
             onclick={() => {
-              const b = doc.blocks.find(
-                (x) => x.id === doc.selectedBlockId && x.type === "note"
-              ) as (PlacedBlock & { type: "note"; content: string }) | undefined;
-              if (b) {
-                b.content = String(b.content ?? "") + " ";
+              if (activeNote) {
+                activeNote.content = String(activeNote.content ?? "") + " ";
                 const ta = canvasEl?.querySelector(
-                  `[data-block-id="${b.id}"] textarea.note-ta`
+                  `[data-block-id="${activeNote.id}"] textarea.note-ta`
                 ) as HTMLTextAreaElement | null;
                 ta?.focus();
               }
@@ -1093,13 +1207,10 @@
             type="button"
             class="island-btn"
             onclick={() => {
-              const b = doc.blocks.find(
-                (x) => x.id === doc.selectedBlockId && x.type === "note"
-              ) as (PlacedBlock & { type: "note"; content: string }) | undefined;
-              if (b) {
-                b.content = String(b.content ?? "") + "\n";
+              if (activeNote) {
+                activeNote.content = String(activeNote.content ?? "") + "\n";
                 const ta = canvasEl?.querySelector(
-                  `[data-block-id="${b.id}"] textarea.note-ta`
+                  `[data-block-id="${activeNote.id}"] textarea.note-ta`
                 ) as HTMLTextAreaElement | null;
                 ta?.focus();
               }
@@ -1313,8 +1424,9 @@
     z-index: 100;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     padding: 6px 14px;
+    max-width: calc(100vw - 32px);
     border-radius: 28px;
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(16px);
@@ -1329,8 +1441,53 @@
     align-items: center;
     gap: 8px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-h);
+    white-space: nowrap;
+  }
+
+  .island-title {
+    letter-spacing: -0.01em;
+  }
+
+  .island-suggestions {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 8px;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .island-suggestions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .suggestion-chip {
+    padding: 2px 8px;
+    font: 600 11px var(--mono);
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--accent-primary) 35%, var(--border));
+    background: color-mix(in srgb, var(--accent-primary) 8%, var(--surface));
+    color: var(--accent-primary);
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .suggestion-chip:hover {
+    background: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--accent-primary-glow);
+  }
+
+  .suggestion-chip:active {
+    transform: scale(0.95);
   }
 
   .island-status-dot {

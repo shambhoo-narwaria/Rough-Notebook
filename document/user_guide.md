@@ -14,14 +14,13 @@ Rough Notebook is designed to serve as an intuitive digital whiteboard for compu
 - **Canvas Boundaries:**
   - The default workspace provides an open virtual surface of 3200px by 2400px.
 
-### 2. Quick Radial Wheel
-- Left-click on an empty canvas space to open the 4-tool radial quick wheel.
-- Items available on the wheel:
-  - **Note:** Creates a freeform sticky note card at the click position.
-  - **Array:** Prompts for length and places an indexed array widget.
-  - **Matrix:** Prompts for row and column count and places a grid.
-  - **Pen:** Toggles freehand drawing mode on and off.
-- Press `Esc` or click outside the wheel to close it.
+### 2. Vertical Left Tool Palette
+- Positioned on the left side of the viewport for rapid tool access:
+  - **Note:** Instantly creates a freeform sticky note card in the current view or where dragged.
+  - **Array:** Instantly inserts a 1D indexed array widget (`[0]`, `[1]`, `[2]`, ...).
+  - **Matrix:** Instantly inserts a 2D dynamic programming grid.
+  - **Pen:** Toggles freehand drawing layer on and off (keyboard shortcut: `P`).
+- Drag-and-drop: Drag any structure button from the left dock and drop it directly where you want it on the canvas.
 
 ---
 
