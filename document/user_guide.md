@@ -10,19 +10,17 @@ Rough Notebook is designed to serve as an intuitive digital whiteboard for compu
 
 ### 1. Canvas Navigation
 - **Panning:**
-  - Hold trackpad gesture or use mouse wheel to scroll horizontally and vertically.
-  - Press `H` to activate Hand mode, then click and drag the canvas freely. Press `Esc` or click the Hand button in the top bar to exit Hand mode.
+  - Hold trackpad gesture or use mouse wheel to scroll horizontally and vertically, or drag with the middle mouse button.
 - **Canvas Boundaries:**
   - The default workspace provides an open virtual surface of 3200px by 2400px.
 
 ### 2. Quick Radial Wheel
-- Left-click on an empty canvas space to open the 5-tool radial quick wheel.
+- Left-click on an empty canvas space to open the 4-tool radial quick wheel.
 - Items available on the wheel:
   - **Note:** Creates a freeform sticky note card at the click position.
   - **Array:** Prompts for length and places an indexed array widget.
   - **Matrix:** Prompts for row and column count and places a grid.
   - **Pen:** Toggles freehand drawing mode on and off.
-  - **Hand:** Toggles canvas pan mode.
 - Press `Esc` or click outside the wheel to close it.
 
 ---

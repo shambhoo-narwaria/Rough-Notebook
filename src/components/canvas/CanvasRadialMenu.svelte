@@ -3,12 +3,10 @@
     x: number;
     y: number;
     penActive: boolean;
-    handActive: boolean;
     onSelectNote: () => void;
     onSelectArray: () => void;
     onSelectMatrix: () => void;
     onTogglePen: () => void;
-    onToggleHand: () => void;
     onClose: () => void;
   };
 
@@ -16,24 +14,21 @@
     x,
     y,
     penActive,
-    handActive,
     onSelectNote,
     onSelectArray,
     onSelectMatrix,
     onTogglePen,
-    onToggleHand,
     onClose,
   }: Props = $props();
 
   let hoveredItem = $state<string | null>(null);
 
-  // 5 items evenly distributed around 360 degrees (72 deg separation)
+  // 4 items evenly distributed around 360 degrees (90 deg separation)
   // Radius R = 54px
   // 0: Note (Top, -90deg): (0, -54)
-  // 1: 1D Array (Top-Right, -18deg): (51.3, -16.7)
-  // 2: 2D Matrix (Bottom-Right, 54deg): (31.7, 43.7)
-  // 3: Pen Tool (Bottom-Left, 126deg): (-31.7, 43.7)
-  // 4: Hand Tool (Top-Left, 198deg): (-51.3, -16.7)
+  // 1: 1D Array (Right, 0deg): (54, 0)
+  // 2: 2D Matrix (Bottom, 90deg): (0, 54)
+  // 3: Pen Tool (Left, 180deg): (-54, 0)
 
   let items = $derived([
     {
@@ -47,34 +42,26 @@
     {
       id: 'array',
       label: 'Array',
-      offsetX: 51.3,
-      offsetY: -16.7,
+      offsetX: 54,
+      offsetY: 0,
       action: onSelectArray,
       active: false,
     },
     {
       id: 'matrix',
       label: 'Matrix',
-      offsetX: 31.7,
-      offsetY: 43.7,
+      offsetX: 0,
+      offsetY: 54,
       action: onSelectMatrix,
       active: false,
     },
     {
       id: 'pen',
       label: 'Pen',
-      offsetX: -31.7,
-      offsetY: 43.7,
+      offsetX: -54,
+      offsetY: 0,
       action: onTogglePen,
       active: penActive,
-    },
-    {
-      id: 'hand',
-      label: 'Hand',
-      offsetX: -51.3,
-      offsetY: -16.7,
-      action: onToggleHand,
-      active: handActive,
     },
   ]);
 </script>
@@ -151,14 +138,6 @@
         <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
           <line x1="11.5" y1="5.5" x2="14.5" y2="8.5" />
-        </svg>
-      {:else if it.id === 'hand'}
-        <!-- Hand / Pan Tool Icon -->
-        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M7 11V5a1 1 0 0 1 2 0v5" />
-          <path d="M9 10V4a1 1 0 0 1 2 0v6" />
-          <path d="M11 10V5a1 1 0 0 1 2 0v6" />
-          <path d="M13 11V7a1 1 0 0 1 2 0v5c0 3-2 5-5 5s-5-2-5-5v-3a1 1 0 0 1 2 0v2" />
         </svg>
       {/if}
     </button>

@@ -46,7 +46,6 @@
   let dim = $state<DimState | null>(null);
   let autoCreateModal = $state<AutoCreateState | null>(null);
   let clearModalOpen = $state(false);
-  let handActive = $state(false);
   let helpOpen = $state(false);
   let penActive = $state(false);
   let penColorKey = $state<PenColorKey>('ink');
@@ -55,15 +54,6 @@
   function togglePen() {
     penActive = !penActive;
     if (penActive) {
-      handActive = false;
-      doc.insertAnchor = null;
-    }
-  }
-
-  function toggleHand() {
-    handActive = !handActive;
-    if (handActive) {
-      penActive = false;
       doc.insertAnchor = null;
     }
   }
@@ -345,10 +335,6 @@
     }
 
     if (e.key === 'Escape') {
-      if (handActive) {
-        handActive = false;
-        return;
-      }
       if (doc.insertAnchor) {
         doc.insertAnchor = null;
         return;
@@ -365,12 +351,6 @@
         }
         return;
       }
-    }
-
-    if (e.key.toLowerCase() === 'h' && !e.metaKey && !e.ctrlKey && !isEditingTextField() && !isInAppModalField()) {
-      e.preventDefault();
-      toggleHand();
-      return;
     }
 
     if (e.key.toLowerCase() === 'p' && !e.metaKey && !e.ctrlKey && !isEditingTextField() && !isInAppModalField()) {
@@ -423,9 +403,7 @@
     {penActive}
     {penColorKey}
     {dark}
-    {handActive}
     onTogglePen={togglePen}
-    onToggleHand={toggleHand}
     onPickColor={(k) => (penColorKey = k)}
     onClearSketches={clearAllSketches}
     onOpenSlash={() => openSlash()}
@@ -436,11 +414,9 @@
 
   <ScratchCanvas
     {penActive}
-    {handActive}
     penStrokeColor={penStrokeColor}
     onSlash={() => openSlash()}
     onTogglePen={togglePen}
-    onToggleHand={toggleHand}
     onEmptyContextMenu={onCanvasContextInsert}
     onOpenAutoCreate={openAutoCreateAt}
   />

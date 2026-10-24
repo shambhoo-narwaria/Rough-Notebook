@@ -32,22 +32,18 @@
 
   type Props = {
     penActive?: boolean;
-    handActive?: boolean;
     penStrokeColor?: string;
     onSlash?: () => void;
     onTogglePen?: () => void;
-    onToggleHand?: () => void;
     onEmptyContextMenu: (pos: { x: number; y: number }) => void;
     onOpenAutoCreate?: (pos: { x: number; y: number }) => void;
   };
 
   let {
     penActive = false,
-    handActive = false,
     penStrokeColor = "#12141a",
     onSlash,
     onTogglePen,
-    onToggleHand,
     onEmptyContextMenu,
     onOpenAutoCreate,
   }: Props = $props();
@@ -449,7 +445,7 @@
     const t = e.target as HTMLElement;
     if (t.closest(".radial-menu")) return;
 
-    if (handActive || e.button === 1) {
+    if (e.button === 1) {
       isPanning = true;
       panStartX = e.clientX;
       panStartY = e.clientY;
@@ -477,7 +473,7 @@
   }
 
   function onViewportDblClick(e: MouseEvent) {
-    if (penActive || handActive) return;
+    if (penActive) return;
     const t = e.target as HTMLElement;
     if (t.closest("[data-placed-root]")) return;
     if (t.closest("[data-caption-strip]")) return;
@@ -491,7 +487,7 @@
 
   function onPlacedPointerDownBubble(b: PlacedBlock, e: PointerEvent) {
     if (penActive && !autoHandwritingActive.value) return;
-    if (handActive || e.button === 1) {
+    if (e.button === 1) {
       isPanning = true;
       panStartX = e.clientX;
       panStartY = e.clientY;
@@ -780,7 +776,6 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="viewport"
-  class:hand-mode={handActive}
   class:is-panning={isPanning}
   class:smart-pen-active={penActive && autoHandwritingActive.value}
   class:is-dragging={drag !== null}
@@ -799,7 +794,6 @@
         x={doc.insertAnchor.x}
         y={doc.insertAnchor.y}
         {penActive}
-        {handActive}
         onSelectNote={() => {
           if (!doc.insertAnchor) return;
           const placed = placeBlockAt(createNoteBlock(), doc.insertAnchor.x - 4, doc.insertAnchor.y - 4);
@@ -825,10 +819,6 @@
         }}
         onTogglePen={() => {
           onTogglePen?.();
-          doc.insertAnchor = null;
-        }}
-        onToggleHand={() => {
-          onToggleHand?.();
           doc.insertAnchor = null;
         }}
         onClose={() => {
@@ -1061,18 +1051,7 @@
     {/if}
   {/if}
 
-  {#if handActive}
-    <div class="hand-mode-toast" role="status">
-      <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7 11V5a1 1 0 0 1 2 0v5" />
-        <path d="M9 10V4a1 1 0 0 1 2 0v6" />
-        <path d="M11 10V5a1 1 0 0 1 2 0v6" />
-        <path d="M13 11V7a1 1 0 0 1 2 0v5c0 3-2 5-5 5s-5-2-5-5v-3a1 1 0 0 1 2 0v2" />
-      </svg>
-      <span>Hand Tool Active — Drag canvas to pan</span>
-      <button type="button" class="toast-exit" onclick={onToggleHand} title="Exit hand mode (Esc)">Exit</button>
-    </div>
-  {:else if penActive && autoHandwritingActive.value}
+  {#if penActive && autoHandwritingActive.value}
     <div class="smart-pen-island" role="toolbar" aria-label="Smart Pen controls">
       <div class="island-main">
         <span class="island-status-dot" class:pulse={isRecognizingHandwriting}></span>
@@ -1315,38 +1294,6 @@
     outline: none;
   }
 
-  .viewport.hand-mode {
-    cursor: grab;
-  }
-
-  .viewport.hand-mode.is-panning {
-    cursor: grabbing;
-  }
-
-  .viewport.hand-mode :global(.placed) {
-    cursor: grab;
-  }
-
-  .hand-mode-toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 18px;
-    border-radius: 24px;
-    background: var(--surface);
-    border: 1px solid var(--accent-primary);
-    color: var(--text-h);
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.15);
-    animation: toastSlideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
   @keyframes toastSlideUp {
     from {
       opacity: 0;
@@ -1356,23 +1303,6 @@
       opacity: 1;
       transform: translate(-50%, 0);
     }
-  }
-
-  .toast-exit {
-    padding: 3px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
-    color: var(--accent-primary);
-    border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .toast-exit:hover {
-    background: var(--accent-primary);
-    color: #ffffff;
   }
 
   .smart-pen-island {

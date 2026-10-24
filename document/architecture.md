@@ -115,7 +115,7 @@ RoughNotebook.svelte (Main Coordinator)
 
 ### Coordinate Space
 - The canvas surface operates on an absolute pixel plane initialized at `3200px x 2400px`.
-- Users navigate using trackpad gestures or by toggling Hand mode (`H` key) to click-and-drag.
+- Users navigate using trackpad gestures, mouse wheel, or middle mouse drag.
 - Widget positions are anchored by their top-left `(x, y)` coordinates.
 
 ### Non-Overlap Engine (`src/library/layout/layoutResolve.ts`)
@@ -153,7 +153,6 @@ A primary goal of Rough Notebook is fluid keyboard control without accidental ke
 - If the user is currently editing an input cell or note textarea, alphanumeric keys are passed through to the browser.
 - If no text input is focused, single-key accelerators are triggered:
   - `P`: Toggle pen drawing layer.
-  - `H`: Toggle canvas hand pan mode.
   - `Delete` / `Backspace`: Remove selected block.
   - `Cmd/Ctrl + C`: Copy active block to internal structure clipboard.
   - `Cmd/Ctrl + V`: Paste block at mouse position or offset anchor.

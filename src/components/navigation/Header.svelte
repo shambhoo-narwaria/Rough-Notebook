@@ -6,9 +6,7 @@
     penActive,
     penColorKey,
     dark,
-    handActive = false,
     onTogglePen,
-    onToggleHand,
     onPickColor,
     onClearSketches,
     onOpenSlash,
@@ -19,9 +17,7 @@
     penActive: boolean;
     penColorKey: PenColorKey;
     dark: boolean;
-    handActive?: boolean;
     onTogglePen: () => void;
-    onToggleHand?: () => void;
     onPickColor: (k: PenColorKey) => void;
     onClearSketches: () => void;
     onOpenSlash: () => void;
@@ -57,21 +53,6 @@
       onPickColor={onPickColor}
       onClearSketches={onClearSketches}
     />
-    <button
-      type="button"
-      class="icon-btn hand-tool-btn"
-      class:is-active={handActive}
-      onclick={onToggleHand}
-      title={handActive ? 'Turn off hand / pan mode (or press Esc)' : 'Turn on hand / pan mode (H)'}
-      aria-label="Hand / Pan mode"
-    >
-      <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7 11V5a1 1 0 0 1 2 0v5" />
-        <path d="M9 10V4a1 1 0 0 1 2 0v6" />
-        <path d="M11 10V5a1 1 0 0 1 2 0v6" />
-        <path d="M13 11V7a1 1 0 0 1 2 0v5c0 3-2 5-5 5s-5-2-5-5v-3a1 1 0 0 1 2 0v2" />
-      </svg>
-    </button>
     <button
       type="button"
       class="action-btn insert-btn"
@@ -301,12 +282,6 @@
     box-shadow: 0 2px 8px var(--accent-primary-glow);
   }
 
-  .icon-btn.is-active {
-    background: var(--accent-primary);
-    color: #ffffff;
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-primary-glow);
-  }
 
   .help-btn:hover {
     color: var(--accent-primary);

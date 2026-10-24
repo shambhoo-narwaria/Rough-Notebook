@@ -74,12 +74,7 @@
           <tr>
             <td class="topic-td"><span class="badge-topic">Quick Tools Wheel</span></td>
             <td>Click empty canvas</td>
-            <td>Open 5-tool radial wheel for Note, Array, Matrix, Pen, or Hand tool.</td>
-          </tr>
-          <tr>
-            <td class="topic-td"><span class="badge-topic">Hand (Pan) Tool</span></td>
-            <td><kbd>H</kbd> or Header / Wheel</td>
-            <td>Drag canvas freely to pan without scrollbars. Press <kbd>Esc</kbd> to exit.</td>
+            <td>Open 4-tool radial wheel for Note, Array, Matrix, or Pen.</td>
           </tr>
           <tr>
             <td class="topic-td"><span class="badge-topic">Pen Layer</span></td>
