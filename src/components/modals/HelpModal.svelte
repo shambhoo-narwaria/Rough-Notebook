@@ -107,9 +107,14 @@
             <td>Removes the active structure when not actively typing inside a cell.</td>
           </tr>
           <tr>
-            <td class="topic-td"><span class="badge-topic">Section Labels</span></td>
-            <td>Double-click bottom strip</td>
-            <td>Add or edit a centered caption label on any array, matrix, or line break.</td>
+            <td class="topic-td"><span class="badge-topic">Zen Mode</span></td>
+            <td><kbd>Z</kbd> or Header button</td>
+            <td>100% edge-to-edge blank paper without headers or toolbars. Move mouse to top or press <kbd>Z</kbd>/<kbd>Esc</kbd> to exit.</td>
+          </tr>
+          <tr>
+            <td class="topic-td"><span class="badge-topic">Page Flip</span></td>
+            <td><kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd> / <kbd>Alt</kbd>+<kbd>N</kbd></td>
+            <td>Flip between rough notebook sheets or instantiate a fresh clean page for your next problem.</td>
           </tr>
         </tbody>
       </table>

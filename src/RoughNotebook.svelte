@@ -36,6 +36,26 @@
   import DimensionModal, { type DimState } from '@/components/modals/DimensionModal.svelte';
   import ClearConfirmModal from '@/components/modals/ClearConfirmModal.svelte';
   import type { PenColorKey } from './library/handwriting/penColor';
+  import { notebookPages, activePageIndex, createNewPage, goToPrevPage, goToNextPage,} from './library/state/notebookPages.svelte';
+
+  let zenMode = $state(false);
+  let showZenToast = $state(false);
+  let zenToastTimer: ReturnType<typeof setTimeout> | null = null;
+  let showHeaderInZen = $state(false);
+
+  function toggleZenMode() {
+    zenMode = !zenMode;
+    if (zenMode) {
+      showZenToast = true;
+      if (zenToastTimer) clearTimeout(zenToastTimer);
+      zenToastTimer = setTimeout(() => {
+        showZenToast = false;
+      }, 2400);
+    } else {
+      showZenToast = false;
+      showHeaderInZen = false;
+    }
+  }
 
   let slashOpen = $state(false);
   let slashFilter = $state('');
@@ -51,11 +71,17 @@
   let penColorKey = $state<PenColorKey>('ink');
   let dark = $state(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
 
-  function togglePen() {
-    penActive = !penActive;
+  function setPenActive(active: boolean) {
+    penActive = active;
     if (penActive) {
       doc.insertAnchor = null;
+      doc.selectedBlockId = null;
+      doc.cellLinearFocus = null;
     }
+  }
+
+  function togglePen() {
+    setPenActive(!penActive);
   }
 
   const slashCommands = $derived(filterCommands(slashFilter));
@@ -90,6 +116,7 @@
   });
 
   function openSlash(anchor?: { x: number; y: number }) {
+    if (penActive) setPenActive(false);
     autoCreateModal = null;
     slashOpen = true;
     slashFilter = '';
@@ -334,7 +361,33 @@
       return;
     }
 
+    if (e.altKey && e.key === '[') {
+      e.preventDefault();
+      goToPrevPage();
+      return;
+    }
+
+    if (e.altKey && e.key === ']') {
+      e.preventDefault();
+      goToNextPage();
+      return;
+    }
+
+    if (e.altKey && e.key.toLowerCase() === 'n') {
+      e.preventDefault();
+      createNewPage();
+      return;
+    }
+
     if (e.key === 'Escape') {
+      if (zenMode) {
+        toggleZenMode();
+        return;
+      }
+      if (penActive) {
+        setPenActive(false);
+        return;
+      }
       if (doc.insertAnchor) {
         doc.insertAnchor = null;
         return;
@@ -351,6 +404,12 @@
         }
         return;
       }
+    }
+
+    if (e.key.toLowerCase() === 'z' && !e.metaKey && !e.ctrlKey && !e.altKey && !isEditingTextField() && !isInAppModalField()) {
+      e.preventDefault();
+      toggleZenMode();
+      return;
     }
 
     if (e.key.toLowerCase() === 'p' && !e.metaKey && !e.ctrlKey && !isEditingTextField() && !isInAppModalField()) {
@@ -381,10 +440,21 @@
     e.preventDefault();
   }}
   onkeydown={onGlobalKeydown}
+  onpointermove={(e) => {
+    if (zenMode) {
+      if (e.clientY < 28) {
+        showHeaderInZen = true;
+      } else if (e.clientY > 80) {
+        showHeaderInZen = false;
+      }
+    }
+  }}
 />
 
 <main
   class="shell"
+  class:zen-mode={zenMode}
+  class:show-header={showHeaderInZen}
   data-editor-shell
   onpointerdown={(e) => {
     const el = e.target as HTMLElement;
@@ -399,10 +469,23 @@
     }
   }}
 >
+  {#if showZenToast}
+    <div class="zen-toast" role="status">
+      <span>Zen Mode Active — Press Z or Esc to exit</span>
+    </div>
+  {/if}
+
   <Header
     {penActive}
     {penColorKey}
     {dark}
+    currentPageIndex={activePageIndex.value}
+    totalPages={notebookPages.length}
+    {zenMode}
+    onPrevPage={goToPrevPage}
+    onNextPage={goToNextPage}
+    onNewPage={createNewPage}
+    onToggleZen={toggleZenMode}
     onTogglePen={togglePen}
     onPickColor={(k) => (penColorKey = k)}
     onClearSketches={clearAllSketches}
@@ -456,6 +539,7 @@
 
 <style>
   .shell {
+    position: relative;
     height: 100dvh;
     min-height: 100svh;
     max-height: 100dvh;
@@ -465,5 +549,75 @@
     color: var(--text);
     display: flex;
     flex-direction: column;
+  }
+
+  .shell.zen-mode :global(.top) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    transform: translateY(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .shell.zen-mode :global(.top:hover),
+  .shell.zen-mode.show-header :global(.top) {
+    transform: translateY(0);
+  }
+
+  .shell.zen-mode :global(.side-toolbar) {
+    transform: translateY(-50%) translateX(-140%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .shell.zen-mode.show-header :global(.side-toolbar) {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .zen-toast {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--accent-primary);
+    color: var(--text-h);
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    animation: toastFade 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes toastFade {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -10px);
+    }
+    15% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    75% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -10px);
+    }
   }
 </style>

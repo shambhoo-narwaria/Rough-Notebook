@@ -112,3 +112,11 @@ export function redoSketchStroke(): boolean {
   sketchStrokes.push(...next);
   return true;
 }
+
+export function replaceSketches(newStrokes: SketchStroke[]) {
+  sketchUndoStack.length = 0;
+  sketchRedoStack.length = 0;
+  conversionHistory.length = 0;
+  sketchStrokes.length = 0;
+  sketchStrokes.push(...JSON.parse(JSON.stringify(newStrokes)));
+}

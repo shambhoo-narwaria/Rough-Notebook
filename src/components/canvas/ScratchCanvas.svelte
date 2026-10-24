@@ -506,6 +506,14 @@
     }
   }
 
+  const activeTool = $derived<string | null>(
+    penActive
+      ? 'pen'
+      : doc.selectedBlockId
+        ? doc.blocks.find((b) => b.id === doc.selectedBlockId)?.type ?? null
+        : null
+  );
+
   const activeNote = $derived(
     doc.selectedBlockId
       ? (doc.blocks.find(
@@ -922,6 +930,7 @@
 >
   <SideToolbar
     {penActive}
+    activeTool={activeTool}
     onSelectNote={handleSelectNote}
     onSelectArray={handleSelectArray}
     onSelectMatrix={handleSelectMatrix}
@@ -1201,7 +1210,7 @@
             }}
             title="Insert space (or press Spacebar)"
           >
-            + Space
+            Space
           </button>
           <button
             type="button"

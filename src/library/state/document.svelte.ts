@@ -99,6 +99,16 @@ export function replaceBlocks(next: PlacedBlock[], skipHistory = false) {
   doc.blocks.push(...next);
 }
 
+export function setBlocksDirect(next: PlacedBlock[]) {
+  undoStack.length = 0;
+  redoStack.length = 0;
+  doc.blocks.length = 0;
+  doc.blocks.push(...JSON.parse(JSON.stringify(next)));
+  doc.selectedBlockId = null;
+  doc.cellLinearFocus = null;
+  doc.insertAnchor = null;
+}
+
 export function updateBlock<T extends Block>(id: BlockId, fn: (b: T) => T) {
   const i = doc.blocks.findIndex((b) => b.id === id);
   if (i === -1) return;

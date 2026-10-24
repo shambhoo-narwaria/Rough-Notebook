@@ -56,7 +56,7 @@
         {/each}
       </div>
       <button type="button" class="clear-marks" role="menuitem" onclick={onClearSketches} title="Clear all ink strokes">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="3 6 5 6 21 6" />
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
         </svg>
@@ -73,7 +73,7 @@
     title={penActive ? 'Turn off pen drawing mode' : 'Turn on pen drawing mode'}
     onclick={onTogglePen}
   >
-    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 19l7-7 3 3-7 7-3-3z" />
       <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
       <path d="M2 2l7.586 7.586" />
@@ -90,15 +90,16 @@
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .fab {
     position: relative;
     flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--muted);
@@ -134,14 +135,16 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
+    gap: 6px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    height: 28px;
+    box-sizing: border-box;
     border: 1px solid var(--border-strong);
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-sm);
     animation: fadeIn 0.15s ease-out;
   }
 
@@ -155,19 +158,19 @@
     flex-direction: row;
     align-items: center;
     background: var(--surface-2);
-    border-radius: var(--radius-sm);
-    padding: 2px;
-    gap: 2px;
+    border-radius: 5px;
+    padding: 1px;
+    gap: 1px;
     border: 1px solid var(--border);
   }
 
   .mode-btn {
-    padding: 3px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
     border: none;
     background: transparent;
     color: var(--muted);
-    font: 600 11px var(--sans);
+    font: 600 10px var(--sans);
     cursor: pointer;
     transition: all 0.15s ease;
     white-space: nowrap;
@@ -187,12 +190,12 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
   }
 
   .orb {
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
     padding: 0;
     border-radius: 50%;
     border: 2px solid transparent;
@@ -211,8 +214,8 @@
 
   .color-orb .fill {
     display: block;
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   }
@@ -227,15 +230,17 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    border-radius: 6px;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 5px;
     border: 1px solid color-mix(in srgb, var(--accent-r) 25%, var(--border));
     background: color-mix(in srgb, var(--accent-r) 8%, var(--surface-2));
     color: var(--accent-r);
-    font: 600 11px var(--sans);
+    font: 600 10px var(--sans);
     cursor: pointer;
     transition: all 0.15s ease;
+    height: 22px;
+    box-sizing: border-box;
   }
 
   .clear-marks:hover {

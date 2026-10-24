@@ -22,6 +22,17 @@ Rough Notebook is designed to serve as an intuitive digital whiteboard for compu
   - **Pen:** Toggles freehand drawing layer on and off (keyboard shortcut: `P`).
 - Drag-and-drop: Drag any structure button from the left dock and drop it directly where you want it on the canvas.
 
+### 3. Notebook Multi-Page Sheets
+- Switch between rough sheets cleanly without losing context:
+  - `<` and `>` buttons or `Alt + [` / `Alt + ]`: Flip between notebook sheets.
+  - `+ New Page` or `Alt + N`: Instantiate a fresh blank rough sheet.
+  - Page states (structured blocks and freehand vector sketches) are preserved per page in memory.
+
+### 4. Zen Mode (100% Edge-to-Edge Paper)
+- Press `Z` or click the Zen button in the header:
+  - Header and side toolbars slide off-screen to give you 100% immersion on paper.
+  - Move mouse cursor to the top edge to briefly reveal controls, or press `Z` / `Esc` to exit Zen Mode.
+
 ---
 
 ## Keyboard-First Command Palette

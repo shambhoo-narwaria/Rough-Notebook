@@ -38,6 +38,8 @@
   - [4. AI Smart Handwriting Engine](#4-ai-smart-handwriting-engine)
   - [5. Micro-Handle Block Repositioning](#5-micro-handle-block-repositioning)
   - [6. Dual Warm Themes](#6-dual-warm-themes)
+  - [7. Multi-Page Scratch Sheets](#7-multi-page-scratch-sheets)
+  - [8. Zen Mode (100% Edge-to-Edge Paper)](#8-zen-mode-100-edge-to-edge-paper)
 - [Feature Comparison](#feature-comparison)
 - [System Architecture](#system-architecture)
 - [Project Directory Structure](#project-directory-structure)
@@ -112,6 +114,17 @@ Copy raw test inputs directly from LeetCode problem descriptions or standard out
 
 - **Warm Light Canvas:** Dot-grid background reminiscent of premium engineered notebook paper, reducing glare during daylight sessions.
 - **Warm Obsidian Dark Mode:** Deep, contrast-tuned background with vivid DSA syntax accents, designed to prevent ocular fatigue during late-night coding rounds.
+
+### 7. Multi-Page Scratch Sheets
+
+- Flip between rough sheets seamlessly without losing previous dry runs (`Page 1`, `Page 2`, `Page 3`).
+- Instant keyboard accelerators: `Alt+[` (previous page), `Alt+]` (next page), and `Alt+N` (new clean sheet).
+- Separate document blocks and freehand vector sketch layers preserved in memory per page.
+
+### 8. Zen Mode (100% Edge-to-Edge Paper)
+
+- Press `Z` or tap the Zen button in the header to hide headers and sidebars.
+- Delivers 100% pure, uninterrupted thinking surface. Move your cursor to the top edge to briefly reveal controls, or tap `Z` / `Esc` to exit.
 
 ---
 
