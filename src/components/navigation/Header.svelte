@@ -123,8 +123,14 @@
       class="action-btn insert-btn"
       onclick={onOpenSlash}
       title="Insert structure (⌘/ or Ctrl+/)"
+      aria-label="Insert structure"
     >
-      <span>Insert</span>
+      <svg class="insert-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <line x1="12" y1="8" x2="12" y2="16" />
+        <line x1="8" y1="12" x2="16" y2="12" />
+      </svg>
+      <span class="insert-text">Insert</span>
     </button>
 
     <button
@@ -342,15 +348,37 @@
   }
 
   .insert-btn {
-    border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border));
-    background: color-mix(in srgb, var(--accent-primary) 6%, var(--surface));
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    gap: 5px;
   }
 
+  .insert-icon {
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .insert-text {
+    color: var(--text-h);
+    transition: color 0.15s ease;
+  }
 
   .insert-btn:hover {
-    border-color: var(--accent-primary);
-    background: color-mix(in srgb, var(--accent-primary) 12%, var(--surface));
+    background: var(--surface-2);
+    color: var(--accent-primary);
+    border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border));
     box-shadow: 0 2px 8px var(--accent-primary-glow);
+  }
+
+  .insert-btn:hover .insert-icon,
+  .insert-btn:hover .insert-text {
+    color: var(--accent-primary);
+  }
+
+  .insert-btn:hover .insert-icon {
+    transform: scale(1.08);
   }
 
   .danger-btn {
@@ -402,19 +430,20 @@
   .page-switcher {
     display: inline-flex;
     align-items: center;
-    gap: 1.5px;
+    gap: 0.5px;
     height: 28px;
-    padding: 2px 2.5px;
+    padding: 2px;
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 6px;
     box-shadow: var(--shadow-sm);
     flex-shrink: 0;
     box-sizing: border-box;
+    min-width: 0;
   }
 
   .page-nav-btn {
-    width: 18px;
+    width: 17px;
     height: 22px;
     border-radius: 3px;
     border: 1px solid transparent;
@@ -443,15 +472,16 @@
   .page-badge {
     display: flex;
     align-items: center;
-    gap: 2px;
-    padding: 0 2px;
-    font-size: 10.5px;
+    gap: 1.5px;
+    padding: 0 1.5px;
+    font-size: 10px;
     line-height: 1;
     user-select: none;
+    min-width: 0;
   }
 
   .page-label {
-    font-size: 9.5px;
+    font-size: 9px;
     color: var(--muted);
     font-weight: 500;
     margin-right: 1px;
@@ -467,74 +497,165 @@
     font-weight: 400;
     color: var(--muted);
     opacity: 0.6;
-    font-size: 9.5px;
-    padding: 0 1px;
+    font-size: 9px;
+    padding: 0 0.5px;
   }
 
   .page-total {
     font-weight: 500;
     color: var(--muted);
-    font-size: 9.5px;
+    font-size: 9px;
     font-variant-numeric: tabular-nums;
   }
 
   .page-divider {
     width: 1px;
-    height: 14px;
+    height: 13px;
     background: var(--border);
-    margin: 0 2px;
+    margin: 0 1.5px;
     flex-shrink: 0;
   }
 
   .page-add-btn {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    justify-content: center;
+    gap: 2.5px;
     height: 22px;
-    padding: 0 6px;
+    padding: 0 5px;
     border-radius: 4px;
-    border: 1px solid color-mix(in srgb, var(--accent-primary) 35%, var(--border));
-    background: color-mix(in srgb, var(--accent-primary) 8%, var(--surface));
-    color: var(--accent-primary);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
     font-size: 9.5px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .page-add-btn svg {
+    color: var(--muted);
+    transition: color 0.15s ease;
   }
 
   .page-add-btn:hover {
-    background: var(--accent-primary);
-    color: #ffffff;
-    border-color: var(--accent-primary);
+    background: var(--surface-2);
+    color: var(--accent-primary);
+    border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border));
   }
 
-  @media (max-width: 900px) {
+  .page-add-btn:hover svg {
+    color: var(--accent-primary);
+  }
+
+  @media (max-width: 820px) {
     .page-label {
       display: none;
     }
   }
 
-  @container topbar (max-width: 900px) {
+  @container topbar (max-width: 820px) {
     .page-label {
       display: none;
     }
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 760px) {
+    .insert-text {
+      display: none;
+    }
+    .insert-btn {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      justify-content: center;
+      gap: 0;
+    }
     .page-add-text {
       display: none;
     }
     .page-add-btn {
-      padding: 0 4px;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+    }
+    .page-switcher {
+      gap: 0.5px;
+      padding: 1.5px;
+    }
+    .page-nav-btn {
+      width: 15px;
+    }
+    .page-badge {
+      padding: 0 0.5px;
+      gap: 1px;
+      font-size: 9.5px;
+    }
+    .page-divider {
+      margin: 0 1px;
     }
   }
 
-  @container topbar (max-width: 680px) {
+  @container topbar (max-width: 760px) {
+    .insert-text {
+      display: none;
+    }
+    .insert-btn {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      justify-content: center;
+      gap: 0;
+    }
     .page-add-text {
       display: none;
     }
     .page-add-btn {
-      padding: 0 4px;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+    }
+    .page-switcher {
+      gap: 0.5px;
+      padding: 1.5px;
+    }
+    .page-nav-btn {
+      width: 15px;
+    }
+    .page-badge {
+      padding: 0 0.5px;
+      gap: 1px;
+      font-size: 9.5px;
+    }
+    .page-divider {
+      margin: 0 1px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .top {
+      padding: 0 8px;
+      gap: 6px;
+    }
+    .actions {
+      gap: 4px;
+    }
+    .divider-v {
+      display: none;
+    }
+  }
+
+  @container topbar (max-width: 480px) {
+    .top {
+      padding: 0 8px;
+      gap: 6px;
+    }
+    .actions {
+      gap: 4px;
+    }
+    .divider-v {
+      display: none;
     }
   }
 </style>
