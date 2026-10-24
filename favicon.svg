@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="purpleCover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FBF9FD"/>
+      <stop offset="100%" stop-color="#F1EAFA"/>
+    </linearGradient>
+  </defs>
+  <!-- Notebook cover with purple accent border -->
+  <rect x="76" y="56" width="360" height="400" rx="44" fill="url(#purpleCover)" stroke="#7C3AED" stroke-width="26"/>
+  <!-- Spine divider in royal purple -->
+  <line x1="160" y1="56" x2="160" y2="456" stroke="#7C3AED" stroke-width="24"/>
+  <!-- Ruled notebook lines with purple accents -->
+  <line x1="216" y1="160" x2="368" y2="160" stroke="#7C3AED" stroke-opacity="0.5" stroke-width="22" stroke-linecap="round"/>
+  <line x1="216" y1="240" x2="368" y2="240" stroke="#7C3AED" stroke-opacity="0.5" stroke-width="22" stroke-linecap="round"/>
+  <line x1="216" y1="320" x2="316" y2="320" stroke="#7C3AED" stroke-width="22" stroke-linecap="round"/>
+</svg>
+

@@ -1,0 +1,19 @@
+{
+  "name": "Rough Notebook — Think it. Trace it. Solve it.",
+  "short_name": "Rough Notebook",
+  "description": "Keyboard-first digital rough notebook for DSA, algorithms, and coding interviews.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F7F6F2",
+  "theme_color": "#7C3AED",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
