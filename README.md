@@ -57,11 +57,29 @@ When solving Data Structures and Algorithms (DSA) problems on LeetCode or in tec
   - Radial palette with curated ink colors (Ink, Red, Green, Blue).
   - Independent stroke history with per-stroke undo.
 
+- **Smart Handwriting Mode (AI / Vector Stroke Engine):**
+  - Continuous background handwriting recognition without modal review screens.
+  - Automatic DSA token normalization for Big-O notation (`O(1)`, `O(n)`, `O(log n)`, `O(n^2)`), pointers (`arr[i]`, `node->next`), and operators.
+  - Simultaneous hybrid input: type with keyboard and write with stylus concurrently.
+  - Fail-safe ink preservation when offline or for stray annotations.
+
 - **Dual Warm Themes:**
   - **Light Mode:** Gentle warm paper canvas with dot grid.
   - **Dark Mode:** Deep warm obsidian with contrast-tuned DSA accents designed to eliminate eye strain during late-night practice.
 
 ---
+
+## Comparison: Why Rough Notebook vs Alternatives
+
+| Feature | Rough Notebook | Excalidraw | Physical Paper | Miro |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | **DSA & Algorithm Dry-Runs** | General Diagramming | Manual Notes | Enterprise Collaboration |
+| **Indexed Array Widgets** | **Yes** (Auto `[0]`, `[1]`, `[2]`) | No (Manual shapes) | Yes (Manual pen) | No |
+| **DP Matrix Grid with Tab** | **Yes** (Rapid Tab navigation) | No | Yes (Manual grid) | No |
+| **Paste Raw LeetCode Arrays** | **Yes** (Instant parsing) | No | No | No |
+| **Handwriting to Code Conversion** | **Yes** (DSA Token Normalizer) | No | No | No |
+| **Keyboard Velocity** | **Yes** (`Cmd+/`, `Tab`, `Cmd+C/V`)| Mouse-heavy | Manual | Mouse-heavy |
+| **Zero Account / 100% Private** | **Yes** (Runs in browser) | Yes | Yes | Requires login |
 
 ## Keyboard Shortcuts Reference
 
@@ -179,12 +197,25 @@ Rough Notebook is deployed live on **GitHub Pages**:
 
 ---
 
+## Frequently Asked Questions (FAQ)
+
+### What is Rough Notebook?
+Rough Notebook is a free, open-source digital rough notebook and visual whiteboard tailored for computer science students and software engineers practicing Data Structures and Algorithms (DSA) and preparing for technical coding interviews.
+
+### How does Rough Notebook differ from Excalidraw?
+Excalidraw is built for general architecture diagrams. Rough Notebook is purpose-built for algorithmic dry-running with native 1D indexed arrays, 2D dynamic programming matrices, LeetCode testcase paste parsing, and background handwriting-to-text recognition with DSA code token normalization.
+
+### Can I use Rough Notebook offline?
+Yes. Rough Notebook runs 100% client-side in your browser. All structured blocks, canvas interactions, and keyboard shortcuts work offline with zero telemetry and no account required.
+
+---
+
 ## License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
 
 ---
 
-<p align="center">
+<p align="left">
   Crafted by <a href="https://github.com/shambhoo-narwaria"><strong>Shambhoo Narwaria</strong></a>
 </p>

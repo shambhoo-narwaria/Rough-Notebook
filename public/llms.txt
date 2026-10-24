@@ -1,22 +1,61 @@
 # Rough Notebook
 
-> Free keyboard-first digital rough notebook for DSA, algorithms, and coding interview practice: freeform notes, arrays, matrices, and manual tracing on a warm paper canvas.
+> An open-source, keyboard-first digital whiteboard and algorithm scratchpad designed specifically for Data Structures & Algorithms (DSA), coding interview practice, and visual dry-running. Combines indexed array blocks, dynamic programming matrix grids, freeform notes, and real-time smart handwriting recognition on a paper canvas.
 
-## Product
-- Name: Rough Notebook
-- Tagline: Think it. Trace it. Solve it.
+## Overview
+- Product: Rough Notebook
+- Live URL: https://shambhoo-narwaria.github.io/Rough-Notebook/
+- Repository: https://github.com/shambhoo-narwaria/Rough-Notebook
+- License: MIT Open Source
 - Author: Shambhoo Narwaria
-- Stack: Svelte 5, TypeScript, Vite, Cloudflare Workers
+- Core Purpose: Fast, distraction-free visual dry-running of algorithm logic, trace tables, two-pointer techniques, sliding windows, and recursion state.
 
-## Features
-- Keyboard-first navigation (⌘/ or Ctrl+/ to insert, Tab to navigate cells)
-- Smart auto-create from pasted testcase arrays & matrices
-- Frictionless freehand pen drawing layer with per-stroke undo
-- Warm paper canvas aesthetic with subtle dot grid
+## Key Capabilities
 
-## Links
-- GitHub: https://github.com/shambhoo-narwaria/Rough-Notebook
-- Open Graph Image: /og.png
-- Sitemap: /sitemap.xml
-- Robots: /robots.txt
+### 1. Smart Data Structure Blocks
+- **1D Arrays:** Cell-based array blocks with auto-computed index labels (`[0]`, `[1]`, `[2]`), automatic resizing, and rapid keyboard navigation (`Tab` / `Shift+Tab`).
+- **2D Matrices:** Grid-based blocks for dynamic programming tables, graph adjacency matrices, and 2D traversal.
+- **Note Cards:** Markdown-capable sticky notes for algorithm invariants, edge cases, and state variables.
+- **Dividers:** Full-width divider spines to segment problem stages (e.g., Initialization, Loop Invariant, Final Return).
+- **Block Repositioning:** Every block includes a clean 4-directional move handle to drag and reposition widgets anywhere with collision resolution.
 
+### 2. Smart Handwriting Mode (AI / Vector Stroke Engine)
+- **Zero-Distraction Recognition:** Write naturally on the canvas using a stylus, pen, or mouse; handwriting automatically converts to clean text directly in the active note in the background without modal review screens.
+- **Algorithmic Token Normalization:** Automatically recognizes and normalizes code tokens:
+  - Big-O complexity: `O(1)`, `O(n)`, `O(log n)`, `O(n log n)`, `O(n^2)`, `O(V + E)`
+  - Pointers and indexing: `arr[i]`, `nums[k]`, `node->next`, `root.left`, `root.right`
+  - DSA keywords: `DFS`, `BFS`, `dp`, `MOD`, `target`
+  - Operators: `<=`, `>=`, `===`, `!=`
+- **Simultaneous Hybrid Input:** Type with keyboard while drawing or writing with stylus at the same time.
+- **Fail-Safe Ink Preservation:** Low-confidence marks or offline sessions preserve raw handwriting ink without data loss.
+
+### 3. Smart Testcase Paste & Auto-Create
+- Copy raw test inputs directly from LeetCode, Codeforces, or HackerRank (e.g. `[2, 7, 11, 15]` or `[[1,2,3],[4,5,6]]`) and paste (`Cmd+V` / `Ctrl+V`).
+- Rough Notebook automatically detects and instantiates interactive array or matrix widgets immediately.
+
+### 4. Freehand Annotation Pen Layer
+- Dedicated vector sketch layer for drawing pointer arrows (`L`, `R`, `slow`, `fast`), recursion tree branches, and graph edges.
+- Multi-color radial palette: Ink (primary), Red (conflicts/base cases), Green (matches/solutions), Blue (pointers).
+- Multi-level undo/redo per stroke.
+
+### 5. Privacy and Architecture
+- 100% Client-Side: Runs entirely in the user's browser with zero trackers, zero telemetry, and zero mandatory backend accounts.
+- Built with Svelte 5, TypeScript, and Vite.
+
+## Comparison: Why Rough Notebook vs Alternatives
+
+| Feature | Rough Notebook | Excalidraw | Physical Paper | Miro |
+| :--- | :--- | :--- | :--- | :--- |
+| Primary Focus | DSA & Algorithm Dry-Runs | General Diagrams | Manual Notes | Enterprise Collaboration |
+| Indexed Array Widgets | Yes (Auto `[0]`, `[1]`, `[2]`) | No (Manual shapes) | Yes (Manual pen) | No |
+| DP Matrix Grid with Tab | Yes | No | Yes (Manual grid) | No |
+| Paste Raw LeetCode Arrays | Yes (Instant parsing) | No | No | No |
+| Handwriting to Code Conversion | Yes (DSA Token Normalizer) | No | No | No |
+| Keyboard Velocity | Yes (`Cmd+/`, `Tab`, `Cmd+C/V`) | Mouse-heavy | Manual | Mouse-heavy |
+| Offline & Zero Setup | Yes (Static SPA) | Yes | Yes | Requires login |
+
+## Complete Context & Documentation
+- Full Documentation: https://shambhoo-narwaria.github.io/Rough-Notebook/llms-full.txt
+- Architecture: https://github.com/shambhoo-narwaria/Rough-Notebook/blob/main/document/architecture.md
+- User Guide: https://github.com/shambhoo-narwaria/Rough-Notebook/blob/main/document/user_guide.md
+- Handwriting Implementation: https://github.com/shambhoo-narwaria/Rough-Notebook/blob/main/document/auto_handwriting_mode.md
