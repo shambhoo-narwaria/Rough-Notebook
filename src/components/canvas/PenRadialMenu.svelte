@@ -13,8 +13,14 @@
 
   let { penActive, penColorKey, dark, onTogglePen, onPickColor, onClearSketches }: Props = $props();
 
-  const inkFill = $derived(dark ? '#f5f0e8' : '#252525');  /* warm dark ink */
+  const inkFill = $derived(dark ? '#F0ECF5' : '#29272E');
   const rgb = { r: '#C94A3A', g: '#3A7D5C', b: '#2B6EA8' } as const;
+  const colorItems = $derived([
+    { key: 'ink' as PenColorKey, fill: inkFill, label: dark ? 'White ink' : 'Black ink' },
+    { key: 'r' as PenColorKey, fill: rgb.r, label: 'Red ink' },
+    { key: 'g' as PenColorKey, fill: rgb.g, label: 'Green ink' },
+    { key: 'b' as PenColorKey, fill: rgb.b, label: 'Blue ink' },
+  ]);
 </script>
 
 <div class="hub">
@@ -42,16 +48,17 @@
       </div>
 
       <div class="color-group" role="group" aria-label="Stroke color">
-        {#each (['ink', 'r', 'g', 'b'] as PenColorKey[]) as key (key)}
+        {#each colorItems as item (item.key)}
           <button
             type="button"
             class="orb color-orb"
-            class:sel={penColorKey === key}
-            aria-label={key === 'ink' ? 'Theme default stroke' : `Color ${key}`}
+            class:sel={penColorKey === item.key}
+            aria-label={item.label}
+            title={item.label}
             role="menuitem"
-            onclick={() => onPickColor(key)}
+            onclick={() => onPickColor(item.key)}
           >
-            <span class="fill" style:background={key === 'ink' ? inkFill : rgb[key]}></span>
+            <span class="fill" style:background={item.fill}></span>
           </button>
         {/each}
       </div>
@@ -145,18 +152,18 @@
 
   .fab.on {
     border-color: var(--accent-primary);
-    background: var(--accent-primary);
-    color: var(--accent-primary-text, #ffffff);
-    box-shadow: 0 0 0 2px var(--accent-primary-glow), var(--shadow-sm);
+    background: var(--active-bg, var(--accent-soft));
+    color: var(--accent-primary);
+    box-shadow: 0 0 0 1px var(--accent-primary-glow), var(--shadow-sm);
   }
 
   .fab.on .pen-icon,
   .fab.on .pen-text {
-    color: var(--accent-primary-text, #ffffff);
+    color: var(--accent-primary);
   }
 
   .fab.on:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.1);
   }
 
   .drop {

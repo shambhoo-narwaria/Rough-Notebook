@@ -1,0 +1,122 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Dark Graphite Gradient -->
+    <radialGradient id="favSlate" cx="256" cy="100" r="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#322C39"/>
+      <stop offset="40%" stop-color="#252128"/>
+      <stop offset="85%" stop-color="#1B1720"/>
+      <stop offset="100%" stop-color="#141117"/>
+    </radialGradient>
+
+    <!-- Specular Rim Light -->
+    <linearGradient id="favRim" x1="256" y1="48" x2="256" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5"/>
+      <stop offset="20%" stop-color="#C6ADF9" stop-opacity="0.25"/>
+      <stop offset="85%" stop-color="#000000" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#9C6BFF" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <!-- Vibrant Hero Wave Gradient -->
+    <linearGradient id="favWave" x1="134" y1="340" x2="380" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#641DEB"/>
+      <stop offset="30%" stop-color="#7B3DF7"/>
+      <stop offset="70%" stop-color="#AF7DFF"/>
+      <stop offset="100%" stop-color="#EDE2FF"/>
+    </linearGradient>
+
+    <filter id="favGlow" x="110" y="270" width="310" height="150" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. Apple Continuous Curvature Rounded Square Base (416x416) -->
+  <rect x="48" y="48" width="416" height="416" rx="98"
+        fill="url(#favSlate)"
+        stroke="url(#favRim)"
+        stroke-width="3"/>
+
+  <!-- 2. Inner Page Top Header Outline -->
+  <path d="M 98 116 C 98 86 118 76 144 76 L 368 76 C 394 76 414 86 414 116 L 414 130"
+        fill="none"
+        stroke="#453E4E"
+        stroke-width="2.5"
+        stroke-linecap="round"/>
+
+  <!-- 3. Left Spine Vertical Cord + 3 Ring Nodes -->
+  <line x1="104" y1="112" x2="104" y2="392" stroke="#5C5368" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Node 1 -->
+  <circle cx="104" cy="138" r="8" fill="#252128" stroke="#A997C2" stroke-width="2.5"/>
+  <circle cx="104" cy="138" r="3" fill="#F7F6F2"/>
+
+  <!-- Node 2 -->
+  <circle cx="104" cy="240" r="8" fill="#252128" stroke="#A997C2" stroke-width="2.5"/>
+  <circle cx="104" cy="240" r="3" fill="#F7F6F2"/>
+
+  <!-- Node 3 -->
+  <circle cx="104" cy="342" r="8" fill="#252128" stroke="#A997C2" stroke-width="2.5"/>
+  <circle cx="104" cy="342" r="3" fill="#F7F6F2"/>
+
+  <!-- 4. Top Ruled Drafting Lines (Line 1 Long, Line 2 Short) -->
+  <line x1="144" y1="144" x2="350" y2="144" stroke="#544B60" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="144" y1="172" x2="292" y2="172" stroke="#443D4E" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- 5. Floating Frosted Glass Array Cells [ — ] [ — ] [ — ] -->
+  <g transform="translate(146, 206)">
+    <!-- Cell 0 -->
+    <rect width="66" height="66" rx="18" fill="#2E2838" stroke="#584F66" stroke-width="3"/>
+    <line x1="22" y1="33" x2="44" y2="33" stroke="#9A8EAB" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Cell 1 -->
+    <g transform="translate(84, 0)">
+      <rect width="66" height="66" rx="18" fill="#2E2838" stroke="#584F66" stroke-width="3"/>
+      <line x1="22" y1="33" x2="44" y2="33" stroke="#9A8EAB" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <!-- Cell 2 -->
+    <g transform="translate(168, 0)">
+      <rect width="66" height="66" rx="18" fill="#2E2838" stroke="#584F66" stroke-width="3"/>
+      <line x1="22" y1="33" x2="44" y2="33" stroke="#9A8EAB" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- 6. Fluid Stylus Trace Wave (High-Contrast for Favicon) -->
+  <g filter="url(#favGlow)">
+    <!-- Ambient glow -->
+    <path d="M 134 340 C 154 314 174 308 198 312 C 230 318 240 366 270 366 C 304 366 334 300 376 322"
+          fill="none"
+          stroke="#7137ED"
+          stroke-width="26"
+          stroke-linecap="round"
+          stroke-opacity="0.45"/>
+
+    <!-- Core stroke -->
+    <path d="M 134 340 C 154 314 174 308 198 312 C 230 318 240 366 270 366 C 304 366 334 300 376 322"
+          fill="none"
+          stroke="url(#favWave)"
+          stroke-width="17"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+    <!-- Crest shimmer -->
+    <path d="M 142 338 C 160 316 178 312 200 314 C 230 320 240 364 270 364 C 302 364 332 304 370 322"
+          fill="none"
+          stroke="#FFFFFF"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-opacity="0.55"/>
+  </g>
+
+  <!-- Glowing Stylus Tip -->
+  <circle cx="376" cy="322" r="14" fill="#C6ADF9" fill-opacity="0.5"/>
+  <circle cx="376" cy="322" r="9" fill="#FFFFFF"/>
+  <circle cx="376" cy="322" r="5" fill="#EDE4FF"/>
+
+  <!-- 7. Bottom Ruled Accent Lines (Line 3 Medium, Line 4 Short) -->
+  <line x1="144" y1="398" x2="284" y2="398" stroke="#484152" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="144" y1="416" x2="240" y2="416" stroke="#383241" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

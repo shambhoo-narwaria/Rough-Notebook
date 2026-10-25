@@ -1,1 +1,1 @@
-export type PenColorKey = 'ink' | 'r' | 'g' | 'b';
+export type PenColorKey = 'ink' | 'r' | 'g' | 'b' | 'v';

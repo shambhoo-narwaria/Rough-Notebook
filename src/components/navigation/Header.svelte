@@ -95,13 +95,7 @@
   <div class="left-section">
     <div class="brand">
       <div class="brand-icon" title="Rough Notebook" aria-label="Rough Notebook">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="2" width="16" height="20" rx="2" />
-          <line x1="8" y1="2" x2="8" y2="22" />
-          <line x1="12" y1="7" x2="18" y2="7" />
-          <line x1="12" y1="11" x2="18" y2="11" />
-          <line x1="12" y1="15" x2="15" y2="15" />
-        </svg>
+        <img src="./favicon.svg" alt="Rough Notebook" class="brand-img" width="22" height="22" />
       </div>
       <span class="logo" aria-label="Rough Notebook">
         <span class="logo-title">Rough<span class="logo-accent"> Notebook</span></span>
@@ -390,21 +384,28 @@
   .brand-icon {
     width: 22px;
     height: 22px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary) 18%, var(--surface-2)), color-mix(in srgb, var(--accent-primary) 8%, var(--surface)));
-    border: 1px solid color-mix(in srgb, var(--accent-primary) 35%, var(--border));
-    color: var(--accent-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 4px var(--accent-primary-glow);
-    transition: all 0.2s ease;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    transition: transform 0.2s ease, filter 0.2s ease;
     flex-shrink: 0;
   }
 
   .brand-icon:hover {
-    transform: scale(1.05);
-    border-color: var(--accent-primary);
+    transform: scale(1.08);
+    filter: drop-shadow(0 2px 8px var(--accent-primary-glow));
+  }
+
+  .brand-img {
+    width: 22px;
+    height: 22px;
+    display: block;
+    object-fit: contain;
+    border-radius: 5px;
   }
 
   .logo {
@@ -427,17 +428,23 @@
 
   .logo-title {
     font-family: var(--brand-display);
-    font-weight: 700;
-    font-size: 12.5px;
+    font-weight: 750;
+    font-size: 13.5px;
     line-height: 1.1;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
     color: var(--text-h);
     white-space: nowrap;
+    transition: color 0.15s ease;
   }
 
   .logo-accent {
-    color: var(--accent-primary);
-    font-weight: 750;
+    color: var(--brand-name-accent, #652EB2);
+    font-weight: 800;
+    transition: color 0.15s ease;
+  }
+
+  .brand:hover .logo-accent {
+    color: var(--brand-name-accent-hover, #521F9A);
   }
 
   .logo-tag {

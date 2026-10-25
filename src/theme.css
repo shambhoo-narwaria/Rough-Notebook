@@ -4,32 +4,39 @@
   --brand-display: 'Inter', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
 
-  /* ── Warm Paper Light Palette ─────────────────────────────────────────── */
-  --bg: #F7F6F2;          /* canvas / warm paper */
-  --bg-dots: rgba(37, 37, 37, 0.1);
-  --surface: #FFFFFF;     /* blocks, menus, panels */
+  /* ── Warm Paper Light Palette (Refined Specification) ─────────────────── */
+  --bg: #FCFBF7;          /* Canvas — Warm, near-white infinite workspace */
+  --bg-dots: #E6E0D6;     /* Dot grid — Visible but unobtrusive */
+  --canvas-dot: #E6E0D6;
+  --surface: #FFFFFF;     /* Panels — Header and floating tool surfaces */
   --surface-2: #FAF9F5;   /* subtle lifted surface */
-  --surface-3: #F0EDE7;   /* stronger surface, borders */
+  --surface-3: #F2EFE8;   /* stronger surface, borders */
   --surface-elevated: #FFFFFF;
-  --text: #4A4A4A;        /* body text */
-  --text-h: #252525;      /* primary ink / headings */
-  --muted: #777777;       /* secondary labels and hints */
-  --muted-2: #9E9E9E;     /* placeholder / faint hints */
-  --border: #E6E3DC;      /* subtle outlines and separators */
-  --border-strong: #D4CEBE; /* stronger warm border */
-  --border-glow: rgba(124, 58, 237, 0.28);
+  --text: #29272E;        /* Main text — High readability */
+  --text-h: #29272E;      /* Main text / headings */
+  --muted: #716D76;       /* Secondary text — Labels and metadata */
+  --muted-2: #8E8A93;     /* placeholder / faint hints */
+  --border: #E6E1D8;      /* Borders — Soft separation */
+  --border-strong: #D9D3C8; /* stronger warm border */
+  --border-glow: rgba(112, 69, 196, 0.28);
 
-  --shadow-sm: 0 1px 3px rgba(37, 37, 37, 0.06), 0 1px 2px rgba(37, 37, 37, 0.04);
-  --shadow: 0 4px 20px rgba(37, 37, 37, 0.08), 0 2px 8px rgba(37, 37, 37, 0.05);
-  --shadow-lg: 0 12px 40px rgba(37, 37, 37, 0.12), 0 4px 16px rgba(37, 37, 37, 0.06);
-  --help-overlay: rgba(37, 37, 37, 0.48);
+  /* ── Brand Typography ─────────────────────────────────────────────────── */
+  --brand-name: #29272E;          /* Black / primary ink text in light theme */
+  --brand-name-accent: #652EB2;   /* Vivid jewel dark violet accent */
+  --brand-name-accent-hover: #521F9A;
+
+  --shadow-sm: 0 1px 3px rgba(41, 39, 46, 0.05), 0 1px 2px rgba(41, 39, 46, 0.03);
+  --shadow: 0 4px 20px rgba(41, 39, 46, 0.07), 0 2px 8px rgba(41, 39, 46, 0.04);
+  --shadow-lg: 0 12px 40px rgba(41, 39, 46, 0.1), 0 4px 16px rgba(41, 39, 46, 0.05);
+  --help-overlay: rgba(41, 39, 46, 0.48);
 
   /* ── Accent System ────────────────────────────────────────────────────── */
-  --accent-primary: #7C3AED;          /* vibrant purple — active, selected */
-  --accent-primary-hover: #6D28D9;
-  --accent-primary-glow: rgba(124, 58, 237, 0.22);
+  --accent-primary: #7045C4;          /* Accent — Selected tools and important actions */
+  --accent-primary-hover: #5F38AC;
+  --accent-primary-glow: rgba(112, 69, 196, 0.22);
   --accent-primary-text: #FFFFFF;
-  --accent-soft: #F3EEFE;             /* soft lavender — gentle highlights */
+  --accent-soft: #F0EAFE;             /* Active background — Subtle lavender highlight */
+  --active-bg: #F0EAFE;
 
   /* Secondary accent: calm slate-blue (for indices, highlights) */
   --accent-cyan: #5B86A0;
@@ -38,7 +45,7 @@
   /* Semantic */
   --accent-r: #C94A3A;    /* warm red */
   --accent-g: #3A7D5C;    /* earthy green */
-  --accent-b: #7C3AED;    /* purple (maps to primary) */
+  --accent-b: #7045C4;    /* purple (maps to primary) */
   --accent-indigo: #7A6FAD; /* muted purple, for note tags */
 
   /* ── Shape & Density ──────────────────────────────────────────────────── */
@@ -58,40 +65,49 @@
 }
 
 html.dark {
-  /* ── Warm Obsidian Dark Theme ─────────────────────────────────────────── */
-  --bg: #141210;            /* dark warm paper */
-  --bg-dots: rgba(255, 245, 230, 0.07);
-  --surface: #1E1B18;       /* dark block surface */
-  --surface-2: #252220;
-  --surface-3: #2E2A27;
-  --surface-elevated: #201D1A;
-  --text: #C5BAB0;          /* warm light text */
-  --text-h: #F0EAE0;        /* warm off-white headings */
-  --muted: #8A7E74;
-  --muted-2: #655C54;
-  --border: rgba(255, 245, 230, 0.1);
-  --border-strong: rgba(255, 245, 230, 0.18);
-  --border-glow: rgba(167, 139, 250, 0.35);
+  /* ── Tactile Obsidian Dark Theme (Exact Specification) ─────────────────── */
+  --bg: #1B191F;            /* Canvas background — Infinite writing surface */
+  --bg-dots: #302B35;       /* Dot grid — Low-contrast canvas texture */
+  --canvas-dot: #302B35;
+  --surface: #242128;       /* Header and toolbar — Floating controls and navigation */
+  --surface-2: #2B2730;     /* Raised surfaces — Popovers and menus */
+  --surface-3: #342F3A;     /* Deeper raised surface */
+  --surface-elevated: #2B2730;
+  --text: #F0ECF5;          /* Primary text — Main text and default light ink */
+  --text-h: #F0ECF5;        /* Headings */
+  --muted: #B8B0C0;         /* Secondary text / icons — Labels and inactive tools */
+  --muted-2: #857D8E;       /* Placeholder / faint hints */
+  --border: #443D4A;        /* Border — Subtle separation */
+  --border-strong: #5A5162; /* Stronger separation / popover borders */
+  --border-glow: rgba(180, 154, 255, 0.35);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 245, 230, 0.06);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 245, 230, 0.08);
-  --help-overlay: rgba(8, 6, 4, 0.78);
+  /* ── Brand Typography ─────────────────────────────────────────────────── */
+  --brand-name: #F4EFFF;          /* Luminous violet-white */
+  --brand-name-accent: #B49AFF;   /* Brand lavender */
+  --brand-name-hover: #FFFFFF;
+  --brand-name-accent-hover: #C5B0FF;
 
-  /* Luminous purple for dark contrast */
-  --accent-primary: #9D68F7;
-  --accent-primary-hover: #8B5CF6;
-  --accent-primary-glow: rgba(157, 104, 247, 0.28);
-  --accent-primary-text: #FFFFFF;
-  --accent-soft: #2E1F47;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(68, 61, 74, 0.35);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(68, 61, 74, 0.45);
+  --help-overlay: rgba(15, 13, 18, 0.82);
 
-  --accent-cyan: #7BA6C4;
-  --accent-cyan-glow: rgba(123, 166, 196, 0.25);
+  /* ── Accent System ──────────────────────────────────────────────────────── */
+  --accent-primary: #B49AFF;          /* Brand lavender — Primary accent and selected actions */
+  --accent-primary-hover: #C5B0FF;
+  --accent-primary-glow: rgba(180, 154, 255, 0.28);
+  --accent-primary-text: #1B191F;     /* High contrast dark text on brand lavender */
+  --accent-soft: #3B2D53;             /* Selected-tool background — Active toolbar button */
+  --active-bg: #3B2D53;
 
-  --accent-r: #E06050;
-  --accent-g: #5A9E7A;
-  --accent-b: #9D68F7;
-  --accent-indigo: #9A8FCA;
+  /* Accent hues / ink tokens */
+  --accent-cyan: #2B6EA8;             /* Blue ink — same as light theme */
+  --accent-cyan-glow: rgba(43, 110, 168, 0.25);
+
+  --accent-r: #C94A3A;                /* Red ink / danger — same as light theme */
+  --accent-g: #3A7D5C;                /* Green ink — same as light theme */
+  --accent-b: #B49AFF;                /* Brand lavender */
+  --accent-indigo: #C8B5FF;           /* Light violet tint */
 
   --canvas-dot: var(--bg-dots);
   color-scheme: dark;

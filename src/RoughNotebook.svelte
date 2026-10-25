@@ -78,14 +78,14 @@
 
   const penStrokeColor = $derived(
     penColorKey === 'r'
-      ? '#C94A3A'   /* warm red */
+      ? '#C94A3A'   /* warm red — same in both themes */
       : penColorKey === 'g'
-        ? '#3A7D5C'  /* earthy green */
+        ? '#3A7D5C'  /* earthy green — same in both themes */
         : penColorKey === 'b'
-          ? '#2B6EA8'  /* calm blue */
+          ? '#2B6EA8'  /* calm blue — same in both themes */
           : dark
-            ? '#F5F0E8'  /* warm parchment */
-            : '#252525',  /* primary ink */
+            ? '#F0ECF5'  /* white ink in dark theme */
+            : '#29272E',  /* black ink in light theme */
   );
 
   $effect(() => {
