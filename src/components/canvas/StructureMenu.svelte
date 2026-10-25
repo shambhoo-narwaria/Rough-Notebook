@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { pushUndoPoint, removeBlock, type PlacedBlock } from '@/library/state/document.svelte';
+  import { pushUndoPoint, removeBlock, randomSampleInt, type PlacedBlock } from '@/library/state/document.svelte';
 
   type MenuItem = { label: string; danger?: boolean; disabled?: boolean; run: () => void };
   type MenuCategory = { title: string; items: MenuItem[] };
@@ -71,7 +71,7 @@
               run: () => {
                 if (block.values.length >= 32) return;
                 pushUndoPoint();
-                block.values = [...block.values, ''];
+                block.values = [...block.values, randomSampleInt(1, 20)];
               },
             },
             {
@@ -103,7 +103,7 @@
                 if (rows >= 16) return;
                 pushUndoPoint();
                 const c = Math.max(cols, 1);
-                block.rows = [...block.rows, Array.from({ length: c }, () => '')];
+                block.rows = [...block.rows, Array.from({ length: c }, () => randomSampleInt(1, 20))];
               },
             },
             {
@@ -121,7 +121,7 @@
               run: () => {
                 if (cols >= 16) return;
                 pushUndoPoint();
-                block.rows = block.rows.map((row) => [...row, '']);
+                block.rows = block.rows.map((row) => [...row, randomSampleInt(1, 20)]);
               },
             },
             {

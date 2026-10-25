@@ -161,22 +161,35 @@ export function redoEditor() {
 }
 
 
-export function createArrayBlock(length: number): ArrayBlock {
+/** Generates a sensible random positive integer (1..20) for interview & DSA problem tracing */
+export function randomSampleInt(min = 1, max = 20): string {
+  return String(Math.floor(Math.random() * (max - min + 1)) + min);
+}
+
+export function createArrayBlock(length: number, initialValues?: string[]): ArrayBlock {
   const n = Math.min(32, Math.max(1, Math.floor(length)));
+  const values = initialValues && initialValues.length === n
+    ? [...initialValues]
+    : Array.from({ length: n }, () => randomSampleInt(1, 20));
   return {
     id: uid(),
     type: 'array',
-    values: Array.from({ length: n }, () => ''),
+    values,
   };
 }
 
-export function createMatrixBlock(rows: number, cols: number): MatrixBlock {
+export function createMatrixBlock(rows: number, cols: number, initialRows?: string[][]): MatrixBlock {
   const r = Math.min(16, Math.max(1, Math.floor(rows)));
   const c = Math.min(16, Math.max(1, Math.floor(cols)));
+  const rowsData = initialRows && initialRows.length === r
+    ? initialRows.map((row) => [...row])
+    : Array.from({ length: r }, () =>
+        Array.from({ length: c }, () => randomSampleInt(1, 20)),
+      );
   return {
     id: uid(),
     type: 'matrix',
-    rows: Array.from({ length: r }, () => Array.from({ length: c }, () => '')),
+    rows: rowsData,
   };
 }
 
