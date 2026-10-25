@@ -72,14 +72,36 @@ export function goToNextPage(): boolean {
   return false;
 }
 
-export function deleteCurrentPage(): boolean {
+export function renamePage(index: number, newTitle: string): boolean {
+  if (index >= 0 && index < notebookPages.length) {
+    const trimmed = newTitle.trim();
+    if (trimmed) {
+      notebookPages[index].title = trimmed;
+      return true;
+    }
+  }
+  return false;
+}
+
+export function deletePage(index: number): boolean {
   if (notebookPages.length <= 1) return false;
-  const curIdx = activePageIndex.value;
-  notebookPages.splice(curIdx, 1);
-  const nextIdx = Math.min(curIdx, notebookPages.length - 1);
-  activePageIndex.value = nextIdx;
-  const target = notebookPages[nextIdx];
-  setBlocksDirect(target.blocks);
-  replaceSketches(target.sketches);
+  if (index < 0 || index >= notebookPages.length) return false;
+
+  const wasActive = index === activePageIndex.value;
+  notebookPages.splice(index, 1);
+
+  if (wasActive) {
+    const nextIdx = Math.min(index, notebookPages.length - 1);
+    activePageIndex.value = nextIdx;
+    const target = notebookPages[nextIdx];
+    setBlocksDirect(target.blocks);
+    replaceSketches(target.sketches);
+  } else if (index < activePageIndex.value) {
+    activePageIndex.value -= 1;
+  }
   return true;
+}
+
+export function deleteCurrentPage(): boolean {
+  return deletePage(activePageIndex.value);
 }

@@ -1081,6 +1081,8 @@
   }
 
   function onWindowKeydown(e: KeyboardEvent) {
+    if (isEditingTextField()) return;
+
     if (e.key === "Escape") {
       if (activeCanvasTool !== null) {
         if (penActive) onTogglePen?.();
@@ -1093,7 +1095,7 @@
       }
     }
 
-    if (!isEditingTextField() && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (!e.ctrlKey && !e.metaKey && !e.altKey) {
       if (e.key.toLowerCase() === "e") {
         e.preventDefault();
         setCanvasTool(activeCanvasTool === 'eraser' ? null : 'eraser');

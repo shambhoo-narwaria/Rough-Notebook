@@ -31,13 +31,21 @@
   import ScratchCanvas from '@/components/canvas/ScratchCanvas.svelte';
   import SlashPalette from '@/components/navigation/SlashPalette.svelte';
   import Header from '@/components/navigation/Header.svelte';
-  import BottomPageBar from '@/components/navigation/BottomPageBar.svelte';
   import HelpModal from '@/components/modals/HelpModal.svelte';
   import AutoCreateModal, { type AutoCreateState } from '@/components/modals/AutoCreateModal.svelte';
   import DimensionModal, { type DimState } from '@/components/modals/DimensionModal.svelte';
   import ClearConfirmModal from '@/components/modals/ClearConfirmModal.svelte';
   import type { PenColorKey } from './library/handwriting/penColor';
-  import { notebookPages, activePageIndex, createNewPage, goToPrevPage, goToNextPage,} from './library/state/notebookPages.svelte';
+  import {
+    notebookPages,
+    activePageIndex,
+    createNewPage,
+    goToPrevPage,
+    goToNextPage,
+    switchToPage,
+    renamePage,
+    deletePage,
+  } from './library/state/notebookPages.svelte';
 
   let slashOpen = $state(false);
   let slashFilter = $state('');
@@ -343,19 +351,19 @@
       return;
     }
 
-    if (e.altKey && e.key === '[') {
+    if (e.altKey && e.key === '[' && !isEditingTextField()) {
       e.preventDefault();
       goToPrevPage();
       return;
     }
 
-    if (e.altKey && e.key === ']') {
+    if (e.altKey && e.key === ']' && !isEditingTextField()) {
       e.preventDefault();
       goToNextPage();
       return;
     }
 
-    if (e.altKey && e.key.toLowerCase() === 'n') {
+    if (e.altKey && e.key.toLowerCase() === 'n' && !isEditingTextField()) {
       e.preventDefault();
       createNewPage();
       return;
@@ -434,6 +442,15 @@
     {penActive}
     {penColorKey}
     {dark}
+    currentPageIndex={activePageIndex.value}
+    totalPages={notebookPages.length}
+    pages={notebookPages}
+    onPrevPage={goToPrevPage}
+    onNextPage={goToNextPage}
+    onNewPage={createNewPage}
+    onSwitchPage={switchToPage}
+    onRenamePage={renamePage}
+    onDeletePage={deletePage}
     onTogglePen={togglePen}
     onPickColor={(k) => (penColorKey = k)}
     onClearSketches={clearAllSketches}
@@ -450,14 +467,6 @@
     onTogglePen={togglePen}
     onEmptyContextMenu={onCanvasContextInsert}
     onOpenAutoCreate={openAutoCreateAt}
-  />
-
-  <BottomPageBar
-    currentPageIndex={activePageIndex.value}
-    totalPages={notebookPages.length}
-    onPrevPage={goToPrevPage}
-    onNextPage={goToNextPage}
-    onNewPage={createNewPage}
   />
 
   <SlashPalette
