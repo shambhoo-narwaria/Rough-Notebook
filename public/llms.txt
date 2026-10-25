@@ -4,7 +4,7 @@
 
 ## Overview
 - Product: Rough Notebook
-- Tagline: Your digital rough notebook for working things out.
+- Tagline: Your digital rough notebook for working things out — the visual companion for solving coding problems.
 - Live URL: https://shambhoo-narwaria.github.io/Rough-Notebook/
 - Repository: https://github.com/shambhoo-narwaria/Rough-Notebook
 - License: MIT Open Source

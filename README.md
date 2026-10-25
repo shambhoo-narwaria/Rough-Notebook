@@ -1,6 +1,7 @@
 # Rough Notebook
 
-**Your digital rough notebook for working things out.**
+**Your digital rough notebook for working things out.**  
+*The visual companion for solving coding problems.*
 
 Work through notes, sketches, and coding problems visually. Sketch your approach, test examples, trace arrays and pointers, and work through dynamic programming tables before writing your solution.
 

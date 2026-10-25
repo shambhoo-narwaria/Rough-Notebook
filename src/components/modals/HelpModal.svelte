@@ -18,7 +18,7 @@
         </div>
         <div>
           <h2 id="help-title" class="help-title">Rough Notebook</h2>
-          <p class="help-subtitle">Your scratchpad for solving coding problems</p>
+          <p class="help-subtitle">The visual companion for solving coding problems</p>
         </div>
       </div>
       <button type="button" class="icon-btn-close" onclick={onClose} aria-label="Close dialog">
