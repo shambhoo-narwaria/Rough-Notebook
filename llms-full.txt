@@ -1,6 +1,6 @@
 # Rough Notebook — Comprehensive Technical and Architectural Specification
 
-Rough Notebook is an open-source, web-based digital scratchpad and visual whiteboard built for computer science students, software engineers, and competitive programmers preparing for technical coding interviews and practicing Data Structures and Algorithms (DSA).
+Rough Notebook is an open-source, web-based digital rough notebook and visual scratchpad built for quick notes, sketches, and practicing Data Structures and Algorithms (DSA) alongside platforms like LeetCode, HackerRank, and NeetCode.
 
 - Product URL: https://shambhoo-narwaria.github.io/Rough-Notebook/
 - Source Code: https://github.com/shambhoo-narwaria/Rough-Notebook
