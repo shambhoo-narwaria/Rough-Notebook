@@ -52,10 +52,19 @@
         type="button"
         class="template-chip"
         onclick={() => {
-          if (modal) modal.text = '[[1, 2, 3], [4, 5, 6], [7, 8, 9]]';
+          if (modal) modal.text = 'nums = [2, 7, 11, 15]';
         }}
       >
-        3×3 Grid
+        LeetCode Array
+      </button>
+      <button
+        type="button"
+        class="template-chip"
+        onclick={() => {
+          if (modal) modal.text = 'grid = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]';
+        }}
+      >
+        2D Grid
       </button>
       <button
         type="button"
@@ -76,7 +85,7 @@
         bind:value={modal.text}
         rows="6"
         spellcheck="false"
-        placeholder="e.g. 1, 2, 3 or [[1, 2], [3, 4]] or ['head', 'mid', 'tail']"
+        placeholder="Paste LeetCode, HackerRank, or raw input (e.g. nums = [2, 7, 11, 15] or [[1, 2], [3, 4]])"
         oninput={() => {
           if (modal?.error) modal = { ...modal, error: '' };
         }}

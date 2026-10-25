@@ -160,12 +160,18 @@ function stripBomAndFullwidthCommas(s: string): string {
   return s.replace(/^\uFEFF/, '').replace(/\uFF0C/g, ',');
 }
 
+function stripVariablePrefix(s: string): string {
+  // Strip code assignment prefixes common in LeetCode/HackerRank testcases like "nums = ", "grid = ", "arr = "
+  return s.replace(/^(?:(?:const|let|var|int\[\]|vector<[^>]+>|String\[\])\s+)?[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*/i, '').trim();
+}
+
 /**
  * Infer a 1D array or 2D matrix from free-form text: JSON lists, comma-separated tokens,
  * unquoted identifiers in brackets, and multi-line row lists.
  */
 export function parseStructureInput(raw: string): ParseStructureResult {
-  const t0 = stripBomAndFullwidthCommas(raw.trim());
+  const stripped = stripVariablePrefix(raw.trim());
+  const t0 = stripBomAndFullwidthCommas(stripped);
   if (!t0) {
     return { ok: false, error: 'Paste or type something to create an array or matrix.' };
   }

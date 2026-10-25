@@ -1,13 +1,15 @@
 # Rough Notebook
 
-> An open-source, keyboard-first digital whiteboard and algorithm scratchpad designed specifically for Data Structures & Algorithms (DSA), coding interview practice, and visual dry-running. Combines indexed array blocks, dynamic programming matrix grids, freeform notes, and real-time smart handwriting recognition on a paper canvas.
+> Your digital rough notebook for working things out. A free, browser-based scratchpad for quick notes, rough sketches, calculations, and visual problem-solving, with built-in arrays, matrix grids, and pointer annotations for coding and DSA problem-solving.
 
 ## Overview
 - Product: Rough Notebook
+- Tagline: Your digital rough notebook for working things out.
 - Live URL: https://shambhoo-narwaria.github.io/Rough-Notebook/
 - Repository: https://github.com/shambhoo-narwaria/Rough-Notebook
 - License: MIT Open Source
 - Author: Shambhoo Narwaria
+- Practice Companion For: LeetCode, NeetCode, HackerRank, Codeforces, CodeChef, and technical interview preparation.
 - Core Purpose: Fast, distraction-free visual dry-running of algorithm logic, trace tables, two-pointer techniques, sliding windows, and recursion state.
 
 ## Key Capabilities

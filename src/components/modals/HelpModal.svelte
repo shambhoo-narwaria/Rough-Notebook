@@ -18,7 +18,7 @@
         </div>
         <div>
           <h2 id="help-title" class="help-title">Rough Notebook</h2>
-          <p class="help-subtitle">High-velocity whiteboard for coding interviews & LeetCode problems</p>
+          <p class="help-subtitle">Your scratchpad for solving coding problems</p>
         </div>
       </div>
       <button type="button" class="icon-btn-close" onclick={onClose} aria-label="Close dialog">
@@ -32,8 +32,15 @@
     <section class="help-about" aria-labelledby="about-h">
       <div class="about-card">
         <p class="help-p">
-          Rough Notebook is a freeform digital workspace where you can reason through a coding problem as naturally as you would on rough paper — with structured objects for arrays, matrices, and notes, all driven from the keyboard.
+          Rough Notebook is your digital rough notebook for working things out. Write quick notes, sketch ideas, annotate examples, and use built-in arrays, matrix grids, and pointer annotations for coding and DSA problem-solving.
         </p>
+        <div class="companion-pills">
+          <span class="companion-label">Practice companion for:</span>
+          <span class="companion-pill">LeetCode</span>
+          <span class="companion-pill">NeetCode</span>
+          <span class="companion-pill">HackerRank</span>
+          <span class="companion-pill">Codeforces</span>
+        </div>
         <div class="about-links">
           <a class="github-badge live-badge" href="https://shambhoo-narwaria.github.io/Rough-Notebook/" target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -248,6 +255,32 @@
     font-size: 13.5px;
     line-height: 1.6;
     color: var(--text);
+  }
+
+  .companion-pills {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    font-size: 11.5px;
+  }
+
+  .companion-label {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .companion-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text-h);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.01em;
   }
 
   .about-links {
