@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/shambhoo-narwaria/Rough-Notebook/issues"
   },
-  "homepage": "https://github.com/shambhoo-narwaria/Rough-Notebook#readme",
+  "homepage": "https://shambhoo-narwaria.github.io/Rough-Notebook/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

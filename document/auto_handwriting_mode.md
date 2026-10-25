@@ -1,6 +1,6 @@
 # Auto Handwriting Mode — Implementation and Architecture Specification
 
-## Overview
+> **Live Application:** [https://shambhoo-narwaria.github.io/Rough-Notebook/](https://shambhoo-narwaria.github.io/Rough-Notebook/)
 
 The Smart Handwriting Mode in Rough Notebook enables users to write naturally on the digital canvas using a pen or stylus, while the system automatically recognizes handwriting and converts it into clean, editable text blocks in the background without opening a modal review dialog or interrupting the user's focus.
 

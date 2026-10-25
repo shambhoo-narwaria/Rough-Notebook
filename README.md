@@ -10,10 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://shambhoo-narwaria.github.io/Rough-Notebook/"><strong>Launch Live Application</strong></a> &bull;
-  <a href="document/user_guide.md"><strong>User Guide</strong></a> &bull;
-  <a href="document/architecture.md"><strong>Architecture Spec</strong></a> &bull;
-  <a href="document/auto_handwriting_mode.md"><strong>Handwriting Engine</strong></a>
+  <a href="https://shambhoo-narwaria.github.io/Rough-Notebook/"><strong>Launch Live Application &rarr;</strong></a>
 </p>
 
 <p align="center">
@@ -39,7 +36,6 @@
   - [5. Micro-Handle Block Repositioning](#5-micro-handle-block-repositioning)
   - [6. Dual Warm Themes](#6-dual-warm-themes)
   - [7. Multi-Page Scratch Sheets](#7-multi-page-scratch-sheets)
-  - [8. Zen Mode (100% Edge-to-Edge Paper)](#8-zen-mode-100-edge-to-edge-paper)
 - [Feature Comparison](#feature-comparison)
 - [System Architecture](#system-architecture)
 - [Project Directory Structure](#project-directory-structure)
@@ -120,12 +116,6 @@ Copy raw test inputs directly from LeetCode problem descriptions or standard out
 - Flip between rough sheets seamlessly without losing previous dry runs (`Page 1`, `Page 2`, `Page 3`).
 - Instant keyboard accelerators: `Alt+[` (previous page), `Alt+]` (next page), and `Alt+N` (new clean sheet).
 - Separate document blocks and freehand vector sketch layers preserved in memory per page.
-
-### 8. Zen Mode (100% Edge-to-Edge Paper)
-
-- Press `Z` or tap the Zen button in the header to hide headers and sidebars.
-- Delivers 100% pure, uninterrupted thinking surface. Move your cursor to the top edge to briefly reveal controls, or tap `Z` / `Esc` to exit.
-
 ---
 
 ## Feature Comparison

@@ -1,6 +1,6 @@
 # Contributing and Developer Guide
 
-## Prerequisites
+> **Live Application:** [https://shambhoo-narwaria.github.io/Rough-Notebook/](https://shambhoo-narwaria.github.io/Rough-Notebook/)
 
 To contribute to Rough Notebook, ensure your environment meets the following requirements:
 - **Node.js:** Version 18.0.0 or higher (LTS recommended).

@@ -73,12 +73,13 @@
     title={penActive ? 'Turn off pen drawing mode' : 'Turn on pen drawing mode'}
     onclick={onTogglePen}
   >
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg class="pen-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 19l7-7 3 3-7 7-3-3z" />
       <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
       <path d="M2 2l7.586 7.586" />
       <circle cx="11" cy="11" r="2" />
     </svg>
+    <span class="pen-text">Pen</span>
   </button>
 </div>
 
@@ -97,18 +98,32 @@
   .fab {
     position: relative;
     flex: 0 0 auto;
-    width: 28px;
     height: 28px;
+    padding: 0 8px;
+    gap: 5px;
     border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--muted);
+    font: 600 11px var(--sans);
     cursor: pointer;
     box-shadow: var(--shadow-sm);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     transition: all 0.15s ease;
+  }
+
+  .pen-icon {
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .pen-text {
+    color: var(--text-h);
+    transition: color 0.15s ease;
   }
 
   .fab:hover {
@@ -119,11 +134,25 @@
     box-shadow: 0 2px 8px var(--accent-primary-glow);
   }
 
+  .fab:hover .pen-icon,
+  .fab:hover .pen-text {
+    color: var(--accent-primary);
+  }
+
+  .fab:hover .pen-icon {
+    transform: scale(1.08);
+  }
+
   .fab.on {
     border-color: var(--accent-primary);
     background: var(--accent-primary);
     color: var(--accent-primary-text, #ffffff);
     box-shadow: 0 0 0 2px var(--accent-primary-glow), var(--shadow-sm);
+  }
+
+  .fab.on .pen-icon,
+  .fab.on .pen-text {
+    color: var(--accent-primary-text, #ffffff);
   }
 
   .fab.on:hover {
@@ -250,5 +279,109 @@
 
   .clear-label {
     white-space: nowrap;
+  }
+
+  @media (max-width: 860px) {
+    .drop {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      right: 0;
+      margin-inline: auto;
+      z-index: 150;
+      height: 36px;
+      padding: 4px 8px;
+      gap: 7px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 95%, transparent);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+      max-width: calc(100vw - 20px);
+      width: max-content;
+      animation: dropFloatIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .drop:hover {
+      border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border));
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--accent-primary-glow);
+    }
+  }
+
+  @container topbar (max-width: 860px) {
+    .drop {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      right: 0;
+      margin-inline: auto;
+      z-index: 150;
+      height: 36px;
+      padding: 4px 8px;
+      gap: 7px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 95%, transparent);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+      max-width: calc(100vw - 20px);
+      width: max-content;
+      animation: dropFloatIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .drop:hover {
+      border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border));
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--accent-primary-glow);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .pen-text {
+      display: none;
+    }
+    .fab {
+      width: 28px;
+      padding: 0;
+      gap: 0;
+      justify-content: center;
+    }
+  }
+
+  @container topbar (max-width: 760px) {
+    .pen-text {
+      display: none;
+    }
+    .fab {
+      width: 28px;
+      padding: 0;
+      gap: 0;
+      justify-content: center;
+    }
+  }
+
+  @keyframes dropFloatIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (max-width: 440px) {
+    .clear-label {
+      display: none;
+    }
+    .clear-marks {
+      padding: 2px 5px;
+    }
+    .mode-btn {
+      padding: 2px 5px;
+      font-size: 9.5px;
+    }
   }
 </style>

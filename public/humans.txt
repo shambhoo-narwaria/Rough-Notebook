@@ -1,7 +1,7 @@
 /* TEAM */
 Author: Shambhoo Narwaria
 GitHub: https://github.com/shambhoo-narwaria/Rough-Notebook
-Site: https://github.com/shambhoo-narwaria/Rough-Notebook
+Site: https://shambhoo-narwaria.github.io/Rough-Notebook/
 
 /* SITE */
 Last update: 2026-10

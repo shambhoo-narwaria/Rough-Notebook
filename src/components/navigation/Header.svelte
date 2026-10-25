@@ -14,11 +14,9 @@
     onToggleTheme,
     currentPageIndex,
     totalPages,
-    zenMode,
     onPrevPage,
     onNextPage,
     onNewPage,
-    onToggleZen,
     onOpenHelp,
   }: {
     penActive: boolean;
@@ -33,11 +31,9 @@
     onOpenHelp: () => void;
     currentPageIndex: number;
     totalPages: number;
-    zenMode: boolean;
     onPrevPage: () => void;
     onNextPage: () => void;
     onNewPage: () => void;
-    onToggleZen: () => void;
   } = $props();
 </script>
 
@@ -138,10 +134,12 @@
       class="action-btn danger-btn"
       onclick={onClearBoard}
       title="Clear entire canvas"
+      aria-label="Clear entire canvas"
     >
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg class="clear-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       </svg>
+      <span class="clear-text">Clear</span>
     </button>
 
     <div class="divider-v" aria-hidden="true"></div>
@@ -163,29 +161,6 @@
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       {/if}
-    </button>
-
-    <button
-      type="button"
-      class="icon-btn zen-btn"
-      class:is-active={zenMode}
-      onclick={onToggleZen}
-      title={zenMode ? 'Exit Zen Mode (Z or Esc)' : 'Zen Mode (Z) — 100% Edge-to-Edge Paper'}
-      aria-label="Toggle Zen Mode"
-    >
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        {#if zenMode}
-          <polyline points="4 14 10 14 10 20" />
-          <polyline points="20 10 14 10 14 4" />
-          <polyline points="14 20 14 14 20 14" />
-          <polyline points="10 4 10 10 4 10" />
-        {:else}
-          <polyline points="15 3 21 3 21 9" />
-          <polyline points="9 21 3 21 3 15" />
-          <polyline points="21 15 21 21 15 21" />
-          <polyline points="3 9 3 3 9 3" />
-        {/if}
-      </svg>
     </button>
 
     <button
@@ -382,13 +357,37 @@
   }
 
   .danger-btn {
-    color: var(--accent-r);
-    border-color: color-mix(in srgb, var(--accent-r) 22%, var(--border));
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    gap: 5px;
+  }
+
+  .clear-icon {
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .clear-text {
+    color: var(--text-h);
+    transition: color 0.15s ease;
   }
 
   .danger-btn:hover {
     background: color-mix(in srgb, var(--accent-r) 10%, var(--surface));
-    border-color: var(--accent-r);
+    color: var(--accent-r);
+    border-color: color-mix(in srgb, var(--accent-r) 45%, var(--border));
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-r) 25%, transparent);
+  }
+
+  .danger-btn:hover .clear-icon,
+  .danger-btn:hover .clear-text {
+    color: var(--accent-r);
+  }
+
+  .danger-btn:hover .clear-icon {
+    transform: scale(1.08);
   }
 
   .icon-btn {
@@ -416,15 +415,8 @@
     box-shadow: 0 2px 8px var(--accent-primary-glow);
   }
 
-  .help-btn:hover,
-  .zen-btn:hover {
+  .help-btn:hover {
     color: var(--accent-primary);
-  }
-
-  .zen-btn.is-active {
-    background: var(--accent-primary);
-    color: #ffffff;
-    border-color: var(--accent-primary);
   }
 
   .page-switcher {
@@ -562,10 +554,12 @@
   }
 
   @media (max-width: 760px) {
-    .insert-text {
+    .insert-text,
+    .clear-text {
       display: none;
     }
-    .insert-btn {
+    .insert-btn,
+    .danger-btn {
       width: 28px;
       height: 28px;
       padding: 0;
@@ -598,10 +592,12 @@
   }
 
   @container topbar (max-width: 760px) {
-    .insert-text {
+    .insert-text,
+    .clear-text {
       display: none;
     }
-    .insert-btn {
+    .insert-btn,
+    .danger-btn {
       width: 28px;
       height: 28px;
       padding: 0;

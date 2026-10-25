@@ -1,6 +1,6 @@
 # Architecture and Technical Design
 
-## Overview
+> **Live Application:** [https://shambhoo-narwaria.github.io/Rough-Notebook/](https://shambhoo-narwaria.github.io/Rough-Notebook/)
 
 Rough Notebook is a browser-based, keyboard-first digital scratch pad built for Data Structures and Algorithms (DSA) problem solving. The application combines reactive structured widgets (such as indexed arrays and matrix grids) with a freehand vector drawing layer on an infinite canvas workspace.
 
