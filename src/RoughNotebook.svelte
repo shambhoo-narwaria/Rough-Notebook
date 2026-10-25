@@ -31,6 +31,7 @@
   import ScratchCanvas from '@/components/canvas/ScratchCanvas.svelte';
   import SlashPalette from '@/components/navigation/SlashPalette.svelte';
   import Header from '@/components/navigation/Header.svelte';
+  import BottomPageBar from '@/components/navigation/BottomPageBar.svelte';
   import HelpModal from '@/components/modals/HelpModal.svelte';
   import AutoCreateModal, { type AutoCreateState } from '@/components/modals/AutoCreateModal.svelte';
   import DimensionModal, { type DimState } from '@/components/modals/DimensionModal.svelte';
@@ -433,11 +434,6 @@
     {penActive}
     {penColorKey}
     {dark}
-    currentPageIndex={activePageIndex.value}
-    totalPages={notebookPages.length}
-    onPrevPage={goToPrevPage}
-    onNextPage={goToNextPage}
-    onNewPage={createNewPage}
     onTogglePen={togglePen}
     onPickColor={(k) => (penColorKey = k)}
     onClearSketches={clearAllSketches}
@@ -454,6 +450,14 @@
     onTogglePen={togglePen}
     onEmptyContextMenu={onCanvasContextInsert}
     onOpenAutoCreate={openAutoCreateAt}
+  />
+
+  <BottomPageBar
+    currentPageIndex={activePageIndex.value}
+    totalPages={notebookPages.length}
+    onPrevPage={goToPrevPage}
+    onNextPage={goToNextPage}
+    onNewPage={createNewPage}
   />
 
   <SlashPalette

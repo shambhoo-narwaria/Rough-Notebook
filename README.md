@@ -5,12 +5,12 @@
 <h1 align="center">Rough Notebook</h1>
 
 <p align="center">
-  <strong>Think it. Trace it. Solve it.</strong><br>
-  A keyboard-first digital rough notebook designed for Data Structures & Algorithms, algorithm trace-tables, and technical coding interviews.
+  <strong>The digital scratchpad LeetCode forgot to build.</strong><br>
+  A keyboard-first digital rough notebook designed for algorithm dry-runs, two-pointer traces, DP state tables, and technical coding interviews.
 </p>
 
 <p align="center">
-  <a href="https://shambhoo-narwaria.github.io/Rough-Notebook/"><strong>Launch Live Application &rarr;</strong></a>
+  <a href="https://shambhoo-narwaria.github.io/Rough-Notebook/"><strong>🚀 Launch Live Application (Free &amp; No Signup) &rarr;</strong></a>
 </p>
 
 <p align="center">
@@ -24,98 +24,16 @@
 
 ---
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Why Rough Notebook?](#why-rough-notebook)
-- [Core Capabilities](#core-capabilities)
-  - [1. Smart DSA Widgets](#1-smart-dsa-widgets)
-  - [2. Instant Testcase Auto-Creation](#2-instant-testcase-auto-creation)
-  - [3. Freehand Trace and Pen Layer](#3-freehand-trace-and-pen-layer)
-  - [4. AI Smart Handwriting Engine](#4-ai-smart-handwriting-engine)
-  - [5. Micro-Handle Block Repositioning](#5-micro-handle-block-repositioning)
-  - [6. Dual Warm Themes](#6-dual-warm-themes)
-  - [7. Multi-Page Scratch Sheets](#7-multi-page-scratch-sheets)
-- [Feature Comparison](#feature-comparison)
-- [System Architecture](#system-architecture)
-- [Project Directory Structure](#project-directory-structure)
-- [Getting Started](#getting-started)
-- [Deployment](#deployment)
-- [Documentation Index](#documentation-index)
-- [License and Attribution](#license-and-attribution)
-
----
-
-## Overview
-
-**Rough Notebook** is a high-velocity, browser-based digital scratchpad engineered specifically for algorithmic thinking, LeetCode practice, and technical whiteboard interviews. It blends the intuitive freedom of rough scrap paper with structured, reactive computational blocks (1D indexed arrays, 2D dynamic programming matrices, and freeform notes), all orchestrated through a strict keyboard-first interface.
-
-The application executes entirely client-side with zero tracking, no login barriers, and instant startup times.
-
----
-
 ## Why Rough Notebook?
 
-When tackling algorithmic problems, software engineers commonly struggle with existing tools:
+When tackling algorithmic problems on LeetCode or in live technical interviews, software engineers are stuck choosing between flawed options:
 
-- **Physical Scrap Paper:** Natural and rapid, but static. You cannot expand array capacities, duplicate testcases, cleanly shift pointer traces, or copy-paste problem inputs.
-- **Generic Whiteboard Apps (Excalidraw, Miro):** Built for high-level software architecture boxes and circles. Drawing an array requires manually aligning 10 rectangles, typing indices individually, and navigating via heavy mouse drags.
-- **Code Editors & Plain Text Notes:** Great for syntax, but completely lack 2D spatial layouts, cell-by-cell matrix tab navigation, and freehand pointer sketches (like two-pointer markers `L` and `R`, slow/fast runners, or recursion call trees).
+- **Physical Scrap Paper:** Natural and rapid, but rigid. You run out of margin space, can't expand array capacities, can't duplicate testcases, and erasing ink ruins your flow.
+- **Generic Whiteboard Apps (Excalidraw, Miro):** Built for high-level system architecture boxes. Drawing a simple array requires manually aligning 10 rectangles, typing indices one-by-one, and constant mouse dragging.
+- **Code Editors & Plain Text Notes:** Great for syntax, but completely lack 2D spatial layouts, cell-by-cell matrix tab traversal, and freehand pointer sketches (like two-pointer markers `L` and `R`, sliding window spans, or recursion call trees).
 
-Rough Notebook bridges this gap by delivering structured data widgets native to computer science workflows alongside a fluid freehand drawing canvas.
+**Rough Notebook bridges this gap:** It combines the tactile freedom of scrap paper with structured computational widgets native to computer science workflows, all driven through a strict keyboard-first interface.
 
----
-
-## Core Capabilities
-
-### 1. Smart DSA Widgets
-
-- **1D Indexed Arrays:** Dynamic array blocks featuring automated column index headers (`[0]`, `[1]`, `[2]`, ...). Add or remove elements with single keystrokes, adjust column widths, and quickly track array transformations across iterations.
-- **2D Dynamic Programming Grids:** Grid widgets supporting custom dimensions, row and column headers, and seamless bidirectional cell navigation via `Tab` and `Shift+Tab`.
-- **Freeform Sticky Notes:** Unobtrusive markdown-friendly text cards designed for edge case checklists, time/space complexity calculations, and invariant tracking.
-- **Section Spines:** Vertical boundary lines that logically divide your canvas into stages (such as Brute Force vs. Optimized Two-Pointer vs. Binary Search).
-
-### 2. Instant Testcase Auto-Creation
-
-Copy raw test inputs directly from LeetCode problem descriptions or standard output and paste (`Cmd+V` / `Ctrl+V`) onto the canvas:
-
-- Parses 1D arrays: `[2, 7, 11, 15]`, `2, 7, 11, 15`, or `["flower", "flow", "flight"]`.
-- Parses 2D matrices: `[[1,2,3],[4,5,6]]` or whitespace-delimited table rows.
-- Automatically instantiates populated, fully interactive widgets at your cursor position with zero manual formatting.
-
-### 3. Freehand Trace and Pen Layer
-
-- Sketch diagrammatic pointers, binary heap trees, graph edges, and linked list pointers directly over canvas objects.
-- Curated color palette tailored for visual contrast:
-  - **Ink:** Default structural ink.
-  - **Red:** High-priority markers, boundary checks, and error conditions.
-  - **Green:** Validated solutions, accepted base cases, and matches.
-  - **Blue:** Auxiliary pointers, slow runners, and traversal paths.
-- Isolated stroke undo stack: pressing `Cmd+Z` while drawing cleanly undos the last stroke without modifying placed structured blocks.
-
-### 4. AI Smart Handwriting Engine
-
-- **Continuous Background Recognition:** Write naturally on the canvas using a stylus, pen, or touch input; strokes are recognized and automatically converted into editable text within active notes without opening intrusive modal review windows.
-- **DSA Token Normalization:** Candidate text is filtered through an algorithmic normalization dictionary that formats Big-O complexity (`O(1)`, `O(n)`, `O(log n)`, `O(n^2)`), pointer operations (`arr[i]`, `node->next`), and common variable names (`prev`, `curr`, `dummy`).
-- **Concurrent Input:** Type with physical keyboard while writing with a stylus simultaneously.
-- **Fail-Safe Retention:** Offline sessions or low-confidence sketches remain preserved permanently as raw vector ink.
-
-### 5. Micro-Handle Block Repositioning
-
-- Every placed block includes an unobtrusive 4-directional move handle (`17px x 17px`) positioned at its top-left corner.
-- Drag any widget effortlessly across the infinite 3200px x 2400px virtual canvas without interfering with cell focus or text selection.
-- Integrated non-overlap collision resolution automatically adjusts positions to prevent accidental visual overlapping.
-
-### 6. Dual Warm Themes
-
-- **Warm Light Canvas:** Dot-grid background reminiscent of premium engineered notebook paper, reducing glare during daylight sessions.
-- **Warm Obsidian Dark Mode:** Deep, contrast-tuned background with vivid DSA syntax accents, designed to prevent ocular fatigue during late-night coding rounds.
-
-### 7. Multi-Page Scratch Sheets
-
-- Flip between rough sheets seamlessly without losing previous dry runs (`Page 1`, `Page 2`, `Page 3`).
-- Instant keyboard accelerators: `Alt+[` (previous page), `Alt+]` (next page), and `Alt+N` (new clean sheet).
-- Separate document blocks and freehand vector sketch layers preserved in memory per page.
 ---
 
 ## Feature Comparison
@@ -126,95 +44,111 @@ Copy raw test inputs directly from LeetCode problem descriptions or standard out
 | **Indexed Array Widgets** | **Native** (Auto `[0]`, `[1]`, `[2]`) | Manual Shapes | Manual Pen | None |
 | **DP Matrix Grid with Tab** | **Native** (Fast Tab traversal) | None | Manual Grid | None |
 | **Paste LeetCode Testcases** | **Instant Auto-Detect** | None | None | None |
-| **Handwriting to Code Engine** | **Native DSA Normalizer** | None | None | None |
-| **Block Repositioning** | **4-Direction Move Handles** | Bounding Box | Cannot Move | Selection Box |
-| **Keyboard Accelerators** | **Full** (`Cmd+/`, `Tab`, `Cmd+C/V`) | Mouse-Centric | None | Mouse-Centric |
+| **Pointer & Shape Tracing** | **Native Arrow / Square / Line** | Manual Shapes | Manual Ink | Generic Shapes |
+| **Multi-Sheet Workspaces** | **Minimal Bottom Switcher** | Endless Canvas | Stack of Papers | Boards |
+| **Keyboard Accelerators** | **Full** (`/`, `P`, `E`, `S`, `Tab`, `Alt+N`) | Mouse-Centric | None | Mouse-Centric |
 | **Zero Account / Local-Only**| **100% Client-Side** | Yes | Yes | Requires Login |
 
-> For complete keyboard workflows, shortcuts, and dry-run walkthroughs, refer to the [User Guide](document/user_guide.md) or click the in-app Help button.
+---
+
+## Superpowers for Interview Prep
+
+### 1. Instant Testcase Ingestion
+Copy raw test inputs directly from LeetCode problem descriptions or terminal output and paste (`Cmd+V` / `Ctrl+V`) anywhere on the canvas:
+- Parses 1D arrays: `[2, 7, 11, 15]`, `2, 7, 11, 15`, or `["flower", "flow", "flight"]`.
+- Parses 2D matrices: `[[1,2,3],[4,5,6]]` or whitespace-delimited rows.
+- Automatically instantiates populated, fully interactive widgets at your cursor position with zero manual formatting.
+
+### 2. Spatial Two-Pointer & Sliding Window Tracing
+- Drop directional arrows, bounding boxes, and pointer markers (`L`, `R`, `slow`, `fast`) directly over array elements.
+- Dedicated vector sketch layer with curated ink colors tailored for visual contrast:
+  - **Ink:** Primary structural traces and notes.
+  - **Red:** High-priority markers, boundary checks, and error conditions.
+  - **Green:** Validated solutions, accepted base cases, and matches.
+  - **Blue:** Auxiliary pointers, secondary runners, and traversal paths.
+- Isolated stroke undo stack: pressing `Cmd+Z` while drawing cleanly undos the last stroke without modifying placed data blocks.
+
+### 3. Dynamic Programming Grids & Trace Tables
+- Grid widgets supporting custom dimensions, row and column headers, and seamless bidirectional cell navigation via `Tab` and `Shift+Tab`.
+- Fill recurrence relations (`dp[i][j] = dp[i-1][j] + ...`) at the speed of thought without touching the mouse.
+
+### 4. Freeform Notes & Section Spines
+- **Markdown Sticky Notes:** Unobtrusive cards designed for edge case checklists, time/space complexity calculations, and invariant tracking.
+- **Section Spines:** Sleek glowing boundary lines that logically divide your canvas into stages (e.g., Brute Force vs. Optimized Two-Pointer vs. Binary Search).
+
+### 5. Multi-Sheet Rough Pages
+- Flip between rough sheets seamlessly without losing previous dry runs (`Page 1`, `Page 2`, `Page 3`) via the minimal floating bottom bar.
+- Instant keyboard accelerators: `Alt+[` (previous page), `Alt+]` (next page), and `Alt+N` (new clean sheet).
+
+### 6. AI Smart Handwriting Engine
+- Write naturally on the canvas using a stylus, pen, or touch input; strokes are recognized and automatically converted into editable text within active notes.
+- Normalizes Big-O complexity (`O(1)`, `O(n)`, `O(log n)`), pointer operations (`arr[i]`, `node->next`), and common variable names (`prev`, `curr`, `dummy`).
 
 ---
 
-## System Architecture
+## The 3-Step Interview Playbook
 
-```mermaid
-flowchart TD
-    subgraph UI ["Client Layer (Svelte 5 Runes)"]
-        Shell["RoughNotebook.svelte"]
-        Header["Header.svelte"]
-        Canvas["ScratchCanvas.svelte"]
-        Toolbar["SideToolbar.svelte"]
-        Palette["SlashPalette.svelte"]
-        Blocks["Note / Array / Matrix Blocks"]
-    end
-
-    subgraph State ["Reactive State Management"]
-        DocStore["document.svelte.ts (Blocks, Selection)"]
-        SketchStore["sketches.svelte.ts (Strokes, Undo/Redo)"]
-        FocusReg["focusRegistry.ts (DOM Focus Routing)"]
-    end
-
-    subgraph Engines ["Core Processing Engines"]
-        LayoutEng["layoutResolve.ts (Collision & Placement)"]
-        ParserEng["parseStructureInput.ts (LeetCode Tokenizer)"]
-        HWEng["handwritingRecognizer.ts (IME Vector API & DSA Normalizer)"]
-    end
-
-    Shell --> Header
-    Shell --> Canvas
-    Shell --> Palette
-    Canvas --> Blocks
-    Canvas --> Toolbar
-
-    Canvas --> DocStore
-    Canvas --> SketchStore
-    Canvas --> FocusReg
-    Blocks --> FocusReg
-
-    Palette --> ParserEng
-    Shell --> LayoutEng
-    Canvas --> HWEng
-    HWEng --> DocStore
+```
+1. Paste Input ──▶ 2. Trace Invariant ──▶ 3. Code with Confidence
+   (Cmd+V LeetCode    (Two-pointers, DP       (Airtight mental model,
+    testcase arrays)   tables, edge cases)     zero edge-case surprises)
 ```
 
+1. **Step 1: Ingest Testcases (`Cmd+V`)**: Copy sample inputs straight from the problem description and paste them into live interactive array/matrix blocks.
+2. **Step 2: Dry-Run the Invariant**: Use the pen and shape tools to mark pointers, trace table state transitions, and test off-by-one edge cases.
+3. **Step 3: Code with Confidence**: Switch back to your IDE or interview screening tab with an airtight mental model and zero hidden surprises.
+
 ---
 
-## Project Directory Structure
+## 60-Second Keyboard Cheatsheet
+
+Rough Notebook is designed so your hands never have to leave the keyboard:
+
+| Shortcut | Action | Description |
+| :--- | :--- | :--- |
+| `Cmd+V` / `Ctrl+V` | **Paste Testcase** | Parse raw string into interactive 1D Array or 2D Matrix |
+| `/` or `Cmd+/` | **Slash Palette** | Open command menu to insert Notes, Arrays, Matrices, or Spines |
+| `P` | **Toggle Pen** | Switch between pointer mode and freehand vector drawing |
+| `E` | **Toggle Eraser** | Erase freehand sketches and pointer annotations |
+| `S` | **Shapes Tool** | Access Arrow, Square box, and Line drawing tools |
+| `D` | **DSA Hub** | Open data structures quick-insert menu |
+| `Tab` / `Shift+Tab` | **Cell Traversal** | Navigate forward and backward across array/matrix cells |
+| `Alt+N` | **New Sheet** | Instantiate a clean rough page for your next problem |
+| `Alt+[` / `Alt+]` | **Flip Sheets** | Navigate to previous / next rough notebook sheet |
+| `Cmd+Z` / `Cmd+Y` | **Undo / Redo** | Undo or redo strokes and structural placements |
+
+---
+
+## Project Structure
 
 ```text
 Rough-Notebook/
 ├── public/                 # Static assets, manifests, and search metadata
 │   ├── favicon.svg         # Scalable vector notebook favicon
-│   ├── og.svg              # Vector social banner and open graph asset
+│   ├── og.svg              # Social banner and open graph asset
 │   ├── site.webmanifest    # Progressive Web App configuration
-│   ├── robots.txt          # Crawler policy directives
-│   ├── sitemap.xml         # XML index
-│   ├── llms.txt            # Concise LLM machine-readable summary
-│   └── llms-full.txt       # Detailed architectural and workflow guide for LLMs
+│   └── llms.txt            # Machine-readable summary for AI assistants
 ├── src/
 │   ├── components/
 │   │   ├── blocks/         # NoteBlock, ArrayBlock, MatrixBlock, SpineBlock
 │   │   ├── canvas/         # ScratchCanvas, SideToolbar, PenRadialMenu
-│   │   ├── modals/         # HelpModal, AutoCreateModal, DimensionModal, ClearConfirmModal
-│   │   └── navigation/     # Header bar, SlashPalette command menu
+│   │   ├── modals/         # HelpModal, AutoCreateModal, DimensionModal
+│   │   └── navigation/     # Header bar, BottomPageBar, SlashPalette
 │   ├── library/            # Logic, data structures, and algorithmic helpers
 │   │   ├── commands/       # Slash command definitions and filtering
 │   │   ├── focus/          # Keyboard focus tracking and registry
-│   │   ├── handwriting/    # Google IME handwriting pipeline and DSA token normalizer
-│   │   ├── layout/         # Widget collision resolution and non-overlap placement
+│   │   ├── handwriting/    # Handwriting pipeline and DSA token normalizer
+│   │   ├── layout/         # Widget collision resolution and placement
 │   │   ├── parser/         # String, array, and matrix input parsing
 │   │   └── state/          # Svelte 5 document and sketch reactive stores
 │   ├── RoughNotebook.svelte # Root canvas coordinator
 │   ├── main.ts             # Application bootstrapping
-│   └── theme.css           # Vanilla CSS design tokens and theme rules
-├── document/               # Technical specs and user documentation
-│   ├── architecture.md     # Detailed architecture and data pipeline
-│   ├── auto_handwriting_mode.md # Handwriting engine specification
-│   └── user_guide.md       # Problem-solving workflows and guides
-├── .github/workflows/      # Automated GitHub Actions deployment pipeline
-├── vite.config.ts          # Vite build and path alias configuration
-├── tsconfig.json           # TypeScript strict configuration
-└── package.json            # Scripts and runtime dependencies
+│   └── theme.css           # Design tokens and dual warm theme rules
+├── document/               # Technical specs and user guides
+│   ├── user_guide.md       # Comprehensive problem-solving workflows
+│   ├── architecture.md     # In-depth architectural documentation
+│   └── auto_handwriting_mode.md # Handwriting recognition pipeline
+└── package.json            # Scripts and dependencies
 ```
 
 ---
@@ -226,72 +160,50 @@ Rough-Notebook/
 - **Node.js 18+** or modern LTS installed.
 - **npm 9+** package manager.
 
-### 1. Clone the Repository
+### Quick Setup
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/shambhoo-narwaria/Rough-Notebook.git
 cd Rough-Notebook
-```
 
-### 2. Install Dependencies
-
-```bash
+# 2. Install dependencies
 npm install
-```
 
-### 3. Launch Development Server
-
-```bash
+# 3. Launch local development server
 npm run dev
 ```
 
-Navigate to `http://localhost:5173` in your browser. Hot module reloading (HMR) is active.
+Navigate to `http://localhost:5173` in your browser.
 
-### 4. Run Type Checks
-
-Validate strict TypeScript typing and Svelte component templates:
+To run strict type validation and Svelte component checks:
 
 ```bash
 npm run check
 ```
 
-### 5. Production Build
+---
 
-Compile the production bundle to `dist/`:
+## Privacy & Local-First Philosophy
 
-```bash
-npm run build
-```
+- **Zero Tracking:** No telemetry, no analytics, no third-party trackers.
+- **Zero Account Barriers:** No logins, passwords, or emails.
+- **100% Client-Side:** All sketch strokes, data structures, and notes are processed directly in your browser memory and never uploaded to any remote server.
 
 ---
 
-## Deployment
+## Community & Contributing
 
-The application is deployed to GitHub Pages from the `gh-pages` branch.
+Contributions, bug reports, and ideas are warmly welcomed!
 
-To build and deploy updates manually:
-
-```bash
-npm run deploy
-```
-
-Alternatively, push to `main` to trigger the automated GitHub Actions workflow defined in `.github/workflows/deploy.yml`.
-
-- **Live URL:** [https://shambhoo-narwaria.github.io/Rough-Notebook/](https://shambhoo-narwaria.github.io/Rough-Notebook/)
+- **Found a bug or have an idea?** Open an [Issue](https://github.com/shambhoo-narwaria/Rough-Notebook/issues).
+- **Want to add a new DSA widget?** (e.g., Linked List pointer nodes, Binary Tree visualizer, Graph adjacency matrix) PRs are always appreciated!
+- **Star the Repo:** If Rough Notebook helps you with LeetCode practice or coding interviews, please consider giving it a ⭐ on GitHub!
 
 ---
 
-## Documentation Index
-
-- **[User Guide](document/user_guide.md):** Step-by-step problem-solving workflows for two-pointers, sliding window, and dynamic programming.
-- **[Architecture Specification](document/architecture.md):** Deep-dive into Svelte 5 Runes reactivity, focus registry, and layout collision resolution.
-- **[Auto Handwriting Engine](document/auto_handwriting_mode.md):** Coordinate transformation, Google IME vector communication, and Big-O token normalization.
-- **[LLM Machine Context](public/llms.txt):** Optimized machine summary for AI assistants and generative engines.
-
----
-
-## License and Attribution
+## License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete details.
 
-Crafted by [**Shambhoo Narwaria**](https://github.com/shambhoo-narwaria). Contributions and feedback are welcome.
+Crafted with care by [**Shambhoo Narwaria**](https://github.com/shambhoo-narwaria).

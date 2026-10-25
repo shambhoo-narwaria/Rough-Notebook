@@ -12,11 +12,6 @@
     onOpenSlash,
     onClearBoard,
     onToggleTheme,
-    currentPageIndex,
-    totalPages,
-    onPrevPage,
-    onNextPage,
-    onNewPage,
     onOpenHelp,
   }: {
     penActive: boolean;
@@ -29,11 +24,6 @@
     onClearBoard: () => void;
     onToggleTheme: () => void;
     onOpenHelp: () => void;
-    currentPageIndex: number;
-    totalPages: number;
-    onPrevPage: () => void;
-    onNextPage: () => void;
-    onNewPage: () => void;
   } = $props();
 </script>
 
@@ -52,57 +42,6 @@
       <span class="logo-title">Rough<span class="logo-accent"> Notebook</span></span>
     </span>
     <span class="logo-tag">Think it. Trace it. Solve it.</span>
-  </div>
-
-  <div class="page-switcher" role="navigation" aria-label="Rough notebook pages">
-    <button
-      type="button"
-      class="page-nav-btn"
-      disabled={currentPageIndex === 0}
-      onclick={onPrevPage}
-      title="Previous page (Alt+[)"
-      aria-label="Previous page"
-    >
-      <svg viewBox="0 0 20 20" width="10.5" height="10.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="12 15 7 10 12 5" />
-      </svg>
-    </button>
-
-    <div class="page-badge" title={`Page ${currentPageIndex + 1} of ${totalPages}`}>
-      <span class="page-label">Page</span>
-      <span class="page-current">{currentPageIndex + 1}</span>
-      <span class="page-sep">/</span>
-      <span class="page-total">{totalPages}</span>
-    </div>
-
-    <button
-      type="button"
-      class="page-nav-btn"
-      disabled={currentPageIndex === totalPages - 1}
-      onclick={onNextPage}
-      title="Next page (Alt+])"
-      aria-label="Next page"
-    >
-      <svg viewBox="0 0 20 20" width="10.5" height="10.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="8 5 13 10 8 15" />
-      </svg>
-    </button>
-
-    <div class="page-divider" aria-hidden="true"></div>
-
-    <button
-      type="button"
-      class="page-add-btn"
-      onclick={onNewPage}
-      title="New clean rough page (Alt+N)"
-      aria-label="New clean rough page"
-    >
-      <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <line x1="10" y1="4" x2="10" y2="16" />
-        <line x1="4" y1="10" x2="16" y2="10" />
-      </svg>
-      <span class="page-add-text">New</span>
-    </button>
   </div>
 
   <div class="actions">
@@ -419,140 +358,6 @@
     color: var(--accent-primary);
   }
 
-  .page-switcher {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5px;
-    height: 28px;
-    padding: 2px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    box-shadow: var(--shadow-sm);
-    flex-shrink: 0;
-    box-sizing: border-box;
-    min-width: 0;
-  }
-
-  .page-nav-btn {
-    width: 17px;
-    height: 22px;
-    border-radius: 3px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--text-h);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.12s ease;
-    padding: 0;
-    flex-shrink: 0;
-  }
-
-  .page-nav-btn:hover:not(:disabled) {
-    background: var(--surface);
-    border-color: var(--border);
-    color: var(--accent-primary);
-  }
-
-  .page-nav-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .page-badge {
-    display: flex;
-    align-items: center;
-    gap: 1.5px;
-    padding: 0 1.5px;
-    font-size: 10px;
-    line-height: 1;
-    user-select: none;
-    min-width: 0;
-  }
-
-  .page-label {
-    font-size: 9px;
-    color: var(--muted);
-    font-weight: 500;
-    margin-right: 1px;
-  }
-
-  .page-current {
-    font-weight: 700;
-    color: var(--text-h);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .page-sep {
-    font-weight: 400;
-    color: var(--muted);
-    opacity: 0.6;
-    font-size: 9px;
-    padding: 0 0.5px;
-  }
-
-  .page-total {
-    font-weight: 500;
-    color: var(--muted);
-    font-size: 9px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .page-divider {
-    width: 1px;
-    height: 13px;
-    background: var(--border);
-    margin: 0 1.5px;
-    flex-shrink: 0;
-  }
-
-  .page-add-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2.5px;
-    height: 22px;
-    padding: 0 5px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    font-size: 9.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    flex-shrink: 0;
-  }
-
-  .page-add-btn svg {
-    color: var(--muted);
-    transition: color 0.15s ease;
-  }
-
-  .page-add-btn:hover {
-    background: var(--surface-2);
-    color: var(--accent-primary);
-    border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border));
-  }
-
-  .page-add-btn:hover svg {
-    color: var(--accent-primary);
-  }
-
-  @media (max-width: 820px) {
-    .page-label {
-      display: none;
-    }
-  }
-
-  @container topbar (max-width: 820px) {
-    .page-label {
-      display: none;
-    }
-  }
-
   @media (max-width: 760px) {
     .insert-text,
     .clear-text {
@@ -565,29 +370,6 @@
       padding: 0;
       justify-content: center;
       gap: 0;
-    }
-    .page-add-text {
-      display: none;
-    }
-    .page-add-btn {
-      width: 22px;
-      height: 22px;
-      padding: 0;
-    }
-    .page-switcher {
-      gap: 0.5px;
-      padding: 1.5px;
-    }
-    .page-nav-btn {
-      width: 15px;
-    }
-    .page-badge {
-      padding: 0 0.5px;
-      gap: 1px;
-      font-size: 9.5px;
-    }
-    .page-divider {
-      margin: 0 1px;
     }
   }
 
@@ -603,29 +385,6 @@
       padding: 0;
       justify-content: center;
       gap: 0;
-    }
-    .page-add-text {
-      display: none;
-    }
-    .page-add-btn {
-      width: 22px;
-      height: 22px;
-      padding: 0;
-    }
-    .page-switcher {
-      gap: 0.5px;
-      padding: 1.5px;
-    }
-    .page-nav-btn {
-      width: 15px;
-    }
-    .page-badge {
-      padding: 0 0.5px;
-      gap: 1px;
-      font-size: 9.5px;
-    }
-    .page-divider {
-      margin: 0 1px;
     }
   }
 
