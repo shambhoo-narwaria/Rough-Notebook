@@ -1,26 +1,44 @@
 <script lang="ts">
   import type { PenColorKey } from '@/library/handwriting/penColor';
   import { autoHandwritingActive } from '@/library/state/sketches.svelte';
+  import type { ThemeMode } from '@/library/theme/theme';
 
   type Props = {
     penActive: boolean;
     penColorKey: PenColorKey;
     dark: boolean;
+    themeMode?: ThemeMode;
     onTogglePen: () => void;
     onPickColor: (k: PenColorKey) => void;
     onClearSketches: () => void;
   };
 
-  let { penActive, penColorKey, dark, onTogglePen, onPickColor, onClearSketches }: Props = $props();
+  let { penActive, penColorKey, dark, themeMode = 'light', onTogglePen, onPickColor, onClearSketches }: Props = $props();
 
-  const inkFill = $derived(dark ? '#F0ECF5' : '#29272E');
-  const rgb = { r: '#C94A3A', g: '#3A7D5C', b: '#2B6EA8' } as const;
-  const colorItems = $derived([
-    { key: 'ink' as PenColorKey, fill: inkFill, label: dark ? 'White ink' : 'Black ink' },
-    { key: 'r' as PenColorKey, fill: rgb.r, label: 'Red ink' },
-    { key: 'g' as PenColorKey, fill: rgb.g, label: 'Green ink' },
-    { key: 'b' as PenColorKey, fill: rgb.b, label: 'Blue ink' },
-  ]);
+  const colorItems = $derived.by(() => {
+    if (themeMode === 'paper') {
+      return [
+        { key: 'ink' as PenColorKey, fill: '#332D27', label: 'Graphite ink' },
+        { key: 'v' as PenColorKey, fill: '#7045C4', label: 'Violet ink' },
+        { key: 'b' as PenColorKey, fill: '#2866B2', label: 'Blue ink' },
+        { key: 'r' as PenColorKey, fill: '#C44742', label: 'Red ink' },
+      ];
+    }
+    if (themeMode === 'dark' || dark) {
+      return [
+        { key: 'ink' as PenColorKey, fill: '#F0ECF5', label: 'White ink' },
+        { key: 'r' as PenColorKey, fill: '#C94A3A', label: 'Red ink' },
+        { key: 'g' as PenColorKey, fill: '#3A7D5C', label: 'Green ink' },
+        { key: 'b' as PenColorKey, fill: '#2B6EA8', label: 'Blue ink' },
+      ];
+    }
+    return [
+      { key: 'ink' as PenColorKey, fill: '#29272E', label: 'Black ink' },
+      { key: 'r' as PenColorKey, fill: '#C94A3A', label: 'Red ink' },
+      { key: 'g' as PenColorKey, fill: '#3A7D5C', label: 'Green ink' },
+      { key: 'b' as PenColorKey, fill: '#2B6EA8', label: 'Blue ink' },
+    ];
+  });
 </script>
 
 <div class="hub">
@@ -52,7 +70,7 @@
           <button
             type="button"
             class="orb color-orb"
-            class:sel={penColorKey === item.key}
+            class:sel={penColorKey === item.key || (themeMode === 'paper' && item.key === 'v' && penColorKey === 'g')}
             aria-label={item.label}
             title={item.label}
             role="menuitem"

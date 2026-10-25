@@ -3,11 +3,13 @@
   import PenRadialMenu from '@/components/canvas/PenRadialMenu.svelte';
   import type { PenColorKey } from '@/library/handwriting/penColor';
   import type { NotebookPage } from '@/library/state/notebookPages.svelte';
+  import type { ThemeMode } from '@/library/theme/theme';
 
   type Props = {
     penActive: boolean;
     penColorKey: PenColorKey;
     dark: boolean;
+    themeMode?: ThemeMode;
     currentPageIndex: number;
     totalPages: number;
     pages: NotebookPage[];
@@ -30,6 +32,7 @@
     penActive,
     penColorKey,
     dark,
+    themeMode = 'light',
     currentPageIndex,
     totalPages,
     pages,
@@ -277,6 +280,7 @@
       {penActive}
       {penColorKey}
       {dark}
+      {themeMode}
       onTogglePen={onTogglePen}
       onPickColor={onPickColor}
       onClearSketches={onClearSketches}
@@ -315,17 +319,31 @@
       type="button"
       class="icon-btn theme-btn"
       onclick={onToggleTheme}
-      title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+      title={themeMode === 'light'
+        ? 'Theme: Light (Clean Canvas) — Click for Paper Mode'
+        : themeMode === 'paper'
+          ? 'Theme: Paper Mode (Natural Ivory) — Click for Dark Mode'
+          : 'Theme: Dark Mode (Obsidian) — Click for Light Mode'}
+      aria-label={`Current theme is ${themeMode}. Click to toggle next theme.`}
     >
-      {#if dark}
+      {#if themeMode === 'paper'}
+        <!-- Paper Scroll / Sheet Icon -->
+        <svg class="theme-icon paper-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="9" y1="12" x2="15" y2="12" />
+          <line x1="9" y1="16" x2="13" y2="16" />
+        </svg>
+      {:else if themeMode === 'dark' || dark}
+        <!-- Moon Icon -->
+        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      {:else}
+        <!-- Sun Icon -->
         <svg class="theme-icon sun-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      {:else}
-        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       {/if}
     </button>

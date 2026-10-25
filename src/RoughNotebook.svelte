@@ -36,6 +36,7 @@
   import DimensionModal, { type DimState } from '@/components/modals/DimensionModal.svelte';
   import ClearConfirmModal from '@/components/modals/ClearConfirmModal.svelte';
   import type { PenColorKey } from './library/handwriting/penColor';
+  import { applyTheme, getInitialTheme, type ThemeMode } from './library/theme/theme';
   import {
     notebookPages,
     activePageIndex,
@@ -59,7 +60,8 @@
   let helpOpen = $state(false);
   let penActive = $state(false);
   let penColorKey = $state<PenColorKey>('ink');
-  let dark = $state(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  let themeMode = $state<ThemeMode>(getInitialTheme());
+  let dark = $derived(themeMode === 'dark');
 
   function setPenActive(active: boolean) {
     penActive = active;
@@ -74,19 +76,36 @@
     setPenActive(!penActive);
   }
 
+  function cycleTheme() {
+    const next: ThemeMode = themeMode === 'light' ? 'paper' : themeMode === 'paper' ? 'dark' : 'light';
+    themeMode = next;
+    applyTheme(next);
+  }
+
   const slashCommands = $derived(filterCommands(slashFilter));
 
-  const penStrokeColor = $derived(
-    penColorKey === 'r'
-      ? '#C94A3A'   /* warm red — same in both themes */
-      : penColorKey === 'g'
-        ? '#3A7D5C'  /* earthy green — same in both themes */
-        : penColorKey === 'b'
-          ? '#2B6EA8'  /* calm blue — same in both themes */
-          : dark
-            ? '#F0ECF5'  /* white ink in dark theme */
-            : '#29272E',  /* black ink in light theme */
-  );
+  const penStrokeColor = $derived.by(() => {
+    if (themeMode === 'paper') {
+      if (penColorKey === 'r') return '#C44742';  /* Red ink */
+      if (penColorKey === 'b') return '#2866B2';  /* Blue ink */
+      if (penColorKey === 'v') return '#7045C4';  /* Violet ink */
+      if (penColorKey === 'g') return '#7045C4';  /* Green / Violet ink */
+      return '#332D27';                           /* Graphite ink */
+    }
+    if (themeMode === 'dark') {
+      if (penColorKey === 'r') return '#C94A3A';  /* Red ink */
+      if (penColorKey === 'b') return '#2B6EA8';  /* Blue ink */
+      if (penColorKey === 'v') return '#B49AFF';  /* Lavender ink */
+      if (penColorKey === 'g') return '#3A7D5C';  /* Green ink */
+      return '#F0ECF5';                           /* White ink */
+    }
+    // Light mode
+    if (penColorKey === 'r') return '#C94A3A';    /* Red ink */
+    if (penColorKey === 'b') return '#2B6EA8';    /* Blue ink */
+    if (penColorKey === 'v') return '#7045C4';    /* Violet ink */
+    if (penColorKey === 'g') return '#3A7D5C';    /* Green ink */
+    return '#29272E';                             /* Black ink */
+  });
 
   $effect(() => {
     slashFilter;
@@ -214,9 +233,7 @@
   }
 
   function toggleTheme() {
-    dark = !dark;
-    document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('leetpad-theme', dark ? 'dark' : 'light');
+    cycleTheme();
   }
 
   function closeHelp() {
@@ -442,6 +459,7 @@
     {penActive}
     {penColorKey}
     {dark}
+    {themeMode}
     currentPageIndex={activePageIndex.value}
     totalPages={notebookPages.length}
     pages={notebookPages}

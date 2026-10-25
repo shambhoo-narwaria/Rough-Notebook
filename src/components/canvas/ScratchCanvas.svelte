@@ -1344,6 +1344,12 @@
 
     <div class="sketch-display" aria-hidden="true">
       <svg class="sketch-svg">
+        <defs>
+          <filter id="paperInkDepth" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.45" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.75" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
         {#each sketchStrokes as s (s.id)}
           <polyline
             class="pen-line"
@@ -1563,9 +1569,19 @@
       transparent 0
     );
     background-size: 24px 24px;
+    background-attachment: local;
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
+  }
+
+  :global(html.paper) .viewport,
+  :global([data-theme="paper"]) .viewport {
+    background-color: var(--bg);
+    background-image: url('/paper-fiber.svg') !important;
+    background-size: 240px 240px;
+    background-repeat: repeat;
+    background-attachment: local;
   }
 
   .canvas-surface {
