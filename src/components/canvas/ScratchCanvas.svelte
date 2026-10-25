@@ -1971,6 +1971,7 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
+    border-radius: var(--radius-sm);
   }
 
   .spine-placed {
@@ -1983,7 +1984,7 @@
 
   .placed.selected:not(.spine-placed) {
     outline: 2px solid var(--accent-primary);
-    outline-offset: 2px;
+    outline-offset: 0;
     border-radius: var(--radius-sm);
     box-shadow: 0 0 12px var(--accent-primary-glow);
   }

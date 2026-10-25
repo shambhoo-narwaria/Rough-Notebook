@@ -1,20 +1,12 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Dark Graphite Gradient -->
-    <radialGradient id="favSlate" cx="256" cy="100" r="340" gradientUnits="userSpaceOnUse">
+    <radialGradient id="favSlate" cx="256" cy="120" r="360" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#322C39"/>
       <stop offset="40%" stop-color="#252128"/>
       <stop offset="85%" stop-color="#1B1720"/>
       <stop offset="100%" stop-color="#141117"/>
     </radialGradient>
-
-    <!-- Specular Rim Light -->
-    <linearGradient id="favRim" x1="256" y1="48" x2="256" y2="464" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5"/>
-      <stop offset="20%" stop-color="#C6ADF9" stop-opacity="0.25"/>
-      <stop offset="85%" stop-color="#000000" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#9C6BFF" stop-opacity="0.3"/>
-    </linearGradient>
 
     <!-- Vibrant Hero Wave Gradient -->
     <linearGradient id="favWave" x1="134" y1="340" x2="380" y2="320" gradientUnits="userSpaceOnUse">
@@ -33,11 +25,8 @@
     </filter>
   </defs>
 
-  <!-- 1. Apple Continuous Curvature Rounded Square Base (416x416) -->
-  <rect x="48" y="48" width="416" height="416" rx="98"
-        fill="url(#favSlate)"
-        stroke="url(#favRim)"
-        stroke-width="3"/>
+  <!-- 1. Apple Continuous Curvature Squircle Base (100% Borderless, Rounded Corners) -->
+  <rect width="512" height="512" rx="114" fill="url(#favSlate)"/>
 
   <!-- 2. Inner Page Top Header Outline -->
   <path d="M 98 116 C 98 86 118 76 144 76 L 368 76 C 394 76 414 86 414 116 L 414 130"

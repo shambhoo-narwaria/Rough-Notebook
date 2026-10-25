@@ -408,9 +408,11 @@
     border-radius: 6px;
     background: transparent;
     border: none;
+    outline: none;
     box-shadow: none;
     transition: transform 0.2s ease, filter 0.2s ease;
     flex-shrink: 0;
+    overflow: hidden;
   }
 
   .brand-icon:hover {
@@ -422,8 +424,10 @@
     width: 22px;
     height: 22px;
     display: block;
-    object-fit: contain;
-    border-radius: 5px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: none;
+    outline: none;
   }
 
   .logo {

@@ -149,7 +149,7 @@
     box-sizing: border-box;
   }
 
-  .wrap:hover {
+  .wrap:hover:not(.selected) {
     border-color: var(--border);
   }
 
@@ -165,7 +165,7 @@
 
   .selected {
     background: color-mix(in srgb, var(--surface) 60%, transparent);
-    border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border));
+    border-color: transparent;
     backdrop-filter: blur(8px);
     box-shadow: var(--shadow-sm);
   }
