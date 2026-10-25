@@ -1,89 +1,102 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Dark Graphite Gradient -->
-    <radialGradient id="favSlate" cx="256" cy="120" r="360" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#322C39"/>
-      <stop offset="40%" stop-color="#252128"/>
-      <stop offset="85%" stop-color="#1B1720"/>
-      <stop offset="100%" stop-color="#141117"/>
+    <!-- Deep Jet Black Velvet Gradient -->
+    <radialGradient id="favJetBlack" cx="256" cy="140" r="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#141219"/>
+      <stop offset="35%" stop-color="#0C0A10"/>
+      <stop offset="75%" stop-color="#060508"/>
+      <stop offset="100%" stop-color="#020103"/>
     </radialGradient>
 
-    <!-- Vibrant Hero Wave Gradient -->
-    <linearGradient id="favWave" x1="134" y1="340" x2="380" y2="320" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#641DEB"/>
-      <stop offset="30%" stop-color="#7B3DF7"/>
-      <stop offset="70%" stop-color="#AF7DFF"/>
-      <stop offset="100%" stop-color="#EDE2FF"/>
+    <!-- Ultra-Premium Luminous Amethyst to Electric Violet Gradient -->
+    <linearGradient id="favWave" x1="130" y1="345" x2="385" y2="315" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6B21A8"/>
+      <stop offset="22%" stop-color="#7C3AED"/>
+      <stop offset="55%" stop-color="#9333EA"/>
+      <stop offset="82%" stop-color="#C084FC"/>
+      <stop offset="100%" stop-color="#F3E8FF"/>
     </linearGradient>
 
-    <filter id="favGlow" x="110" y="270" width="310" height="150" filterUnits="userSpaceOnUse">
-      <feGaussianBlur stdDeviation="7" result="blur"/>
+    <!-- Multi-stage Photorealistic Glow Filter -->
+    <filter id="favGlow" x="80" y="240" width="370" height="200" filterUnits="userSpaceOnUse">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="deepBloom"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="sharpBloom"/>
       <feMerge>
-        <feMergeNode in="blur"/>
+        <feMergeNode in="deepBloom"/>
+        <feMergeNode in="sharpBloom"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
 
-  <!-- 1. Apple Continuous Curvature Squircle Base (100% Borderless, Rounded Corners) -->
-  <rect width="512" height="512" rx="114" fill="url(#favSlate)"/>
+  <!-- 1. Apple Continuous Curvature Squircle Base (Deep Jet Black, 100% Borderless) -->
+  <rect width="512" height="512" rx="114" fill="url(#favJetBlack)"/>
 
-  <!-- 2. Inner Page Top Header Outline -->
+  <!-- 2. Inner Page Top Header Outline (Crisp White) -->
   <path d="M 98 116 C 98 86 118 76 144 76 L 368 76 C 394 76 414 86 414 116 L 414 130"
         fill="none"
-        stroke="#453E4E"
+        stroke="#FFFFFF"
+        stroke-opacity="0.75"
         stroke-width="2.5"
         stroke-linecap="round"/>
 
-  <!-- 3. Left Spine Vertical Cord + 3 Ring Nodes -->
-  <line x1="104" y1="112" x2="104" y2="392" stroke="#5C5368" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- 3. Left Spine Vertical Cord + 3 Ring Nodes (Crisp White) -->
+  <line x1="104" y1="112" x2="104" y2="392" stroke="#FFFFFF" stroke-opacity="0.90" stroke-width="3.5" stroke-linecap="round"/>
 
   <!-- Node 1 -->
-  <circle cx="104" cy="138" r="8" fill="#252128" stroke="#A997C2" stroke-width="2.5"/>
-  <circle cx="104" cy="138" r="3" fill="#F7F6F2"/>
+  <circle cx="104" cy="138" r="8" fill="#0A090E" stroke="#FFFFFF" stroke-width="2.5"/>
+  <circle cx="104" cy="138" r="3.2" fill="#FFFFFF"/>
 
   <!-- Node 2 -->
-  <circle cx="104" cy="240" r="8" fill="#252128" stroke="#A997C2" stroke-width="2.5"/>
-  <circle cx="104" cy="240" r="3" fill="#F7F6F2"/>
+  <circle cx="104" cy="240" r="8" fill="#0A090E" stroke="#FFFFFF" stroke-width="2.5"/>
+  <circle cx="104" cy="240" r="3.2" fill="#FFFFFF"/>
 
   <!-- Node 3 -->
-  <circle cx="104" cy="342" r="8" fill="#252128" stroke="#A997C2" stroke-width="2.5"/>
-  <circle cx="104" cy="342" r="3" fill="#F7F6F2"/>
+  <circle cx="104" cy="342" r="8" fill="#0A090E" stroke="#FFFFFF" stroke-width="2.5"/>
+  <circle cx="104" cy="342" r="3.2" fill="#FFFFFF"/>
 
-  <!-- 4. Top Ruled Drafting Lines (Line 1 Long, Line 2 Short) -->
-  <line x1="144" y1="144" x2="350" y2="144" stroke="#544B60" stroke-width="4.5" stroke-linecap="round"/>
-  <line x1="144" y1="172" x2="292" y2="172" stroke="#443D4E" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- 4. Top Ruled Drafting Lines (Crisp White) -->
+  <line x1="144" y1="144" x2="350" y2="144" stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="144" y1="172" x2="292" y2="172" stroke="#FFFFFF" stroke-opacity="0.70" stroke-width="3.5" stroke-linecap="round"/>
 
-  <!-- 5. Floating Frosted Glass Array Cells [ — ] [ — ] [ — ] -->
+  <!-- 5. Floating Frosted Glass Array Cells (Crisp White [ — ] [ — ] [ — ]) -->
   <g transform="translate(146, 206)">
     <!-- Cell 0 -->
-    <rect width="66" height="66" rx="18" fill="#2E2838" stroke="#584F66" stroke-width="3"/>
-    <line x1="22" y1="33" x2="44" y2="33" stroke="#9A8EAB" stroke-width="4" stroke-linecap="round"/>
+    <rect width="66" height="66" rx="18" fill="rgba(255, 255, 255, 0.08)" stroke="#FFFFFF" stroke-opacity="0.90" stroke-width="3"/>
+    <line x1="22" y1="33" x2="44" y2="33" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
 
     <!-- Cell 1 -->
     <g transform="translate(84, 0)">
-      <rect width="66" height="66" rx="18" fill="#2E2838" stroke="#584F66" stroke-width="3"/>
-      <line x1="22" y1="33" x2="44" y2="33" stroke="#9A8EAB" stroke-width="4" stroke-linecap="round"/>
+      <rect width="66" height="66" rx="18" fill="rgba(255, 255, 255, 0.08)" stroke="#FFFFFF" stroke-opacity="0.90" stroke-width="3"/>
+      <line x1="22" y1="33" x2="44" y2="33" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
     </g>
 
     <!-- Cell 2 -->
     <g transform="translate(168, 0)">
-      <rect width="66" height="66" rx="18" fill="#2E2838" stroke="#584F66" stroke-width="3"/>
-      <line x1="22" y1="33" x2="44" y2="33" stroke="#9A8EAB" stroke-width="4" stroke-linecap="round"/>
+      <rect width="66" height="66" rx="18" fill="rgba(255, 255, 255, 0.08)" stroke="#FFFFFF" stroke-opacity="0.90" stroke-width="3"/>
+      <line x1="22" y1="33" x2="44" y2="33" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
     </g>
   </g>
 
-  <!-- 6. Fluid Stylus Trace Wave (High-Contrast for Favicon) -->
+  <!-- 6. Fluid Stylus Trace Wave (Premium High-Contrast Jewel Violet Ink) -->
   <g filter="url(#favGlow)">
-    <!-- Ambient glow -->
+    <!-- Deep royal purple aura -->
     <path d="M 134 340 C 154 314 174 308 198 312 C 230 318 240 366 270 366 C 304 366 334 300 376 322"
           fill="none"
-          stroke="#7137ED"
-          stroke-width="26"
+          stroke="#7C3AED"
+          stroke-width="30"
           stroke-linecap="round"
           stroke-opacity="0.45"/>
 
-    <!-- Core stroke -->
+    <!-- Vivid electric violet ambient glow -->
+    <path d="M 134 340 C 154 314 174 308 198 312 C 230 318 240 366 270 366 C 304 366 334 300 376 322"
+          fill="none"
+          stroke="#9333EA"
+          stroke-width="22"
+          stroke-linecap="round"
+          stroke-opacity="0.65"/>
+
+    <!-- Core luminous amethyst-to-lilac wave -->
     <path d="M 134 340 C 154 314 174 308 198 312 C 230 318 240 366 270 366 C 304 366 334 300 376 322"
           fill="none"
           stroke="url(#favWave)"
@@ -91,21 +104,22 @@
           stroke-linecap="round"
           stroke-linejoin="round"/>
 
-    <!-- Crest shimmer -->
+    <!-- Precision diamond specular crest -->
     <path d="M 142 338 C 160 316 178 312 200 314 C 230 320 240 364 270 364 C 302 364 332 304 370 322"
           fill="none"
           stroke="#FFFFFF"
-          stroke-width="3"
+          stroke-width="3.2"
           stroke-linecap="round"
-          stroke-opacity="0.55"/>
+          stroke-opacity="0.85"/>
   </g>
 
   <!-- Glowing Stylus Tip -->
-  <circle cx="376" cy="322" r="14" fill="#C6ADF9" fill-opacity="0.5"/>
-  <circle cx="376" cy="322" r="9" fill="#FFFFFF"/>
-  <circle cx="376" cy="322" r="5" fill="#EDE4FF"/>
+  <circle cx="376" cy="322" r="17" fill="#9333EA" fill-opacity="0.50"/>
+  <circle cx="376" cy="322" r="11" fill="#C084FC" fill-opacity="0.75"/>
+  <circle cx="376" cy="322" r="7" fill="#FFFFFF"/>
+  <circle cx="376" cy="322" r="3.2" fill="#F5F3FF"/>
 
-  <!-- 7. Bottom Ruled Accent Lines (Line 3 Medium, Line 4 Short) -->
-  <line x1="144" y1="398" x2="284" y2="398" stroke="#484152" stroke-width="4.5" stroke-linecap="round"/>
-  <line x1="144" y1="416" x2="240" y2="416" stroke="#383241" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- 7. Bottom Ruled Accent Lines (Crisp White) -->
+  <line x1="144" y1="398" x2="284" y2="398" stroke="#FFFFFF" stroke-opacity="0.80" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="144" y1="416" x2="240" y2="416" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="3.5" stroke-linecap="round"/>
 </svg>
