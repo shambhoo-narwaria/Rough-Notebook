@@ -1,25 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import {
-    doc,
-    moveBlock,
-    pushUndoPoint,
-    clearSelection,
-    placeBlockAt,
-    createNoteBlock,
-    createArrayBlock,
-    createMatrixBlock,
-    removeBlock,
-    type PlacedBlock,
-  } from "@/library/state/document.svelte";
-  import {
-    sketchStrokes,
-    appendSketchStroke,
-    clearAllSketches,
-    autoHandwritingActive,
-    removeStrokesByIds,
-    registerHandwritingConversion,
-  } from "@/library/state/sketches.svelte";
+  import { doc, moveBlock, pushUndoPoint, undoEditor, redoEditor, clearSelection, placeBlockAt, createNoteBlock, createArrayBlock, createMatrixBlock, removeBlock, type PlacedBlock } from "@/library/state/document.svelte";
+  import { sketchStrokes, appendSketchStroke, clearAllSketches, autoHandwritingActive, removeStrokesByIds, undoSketchStroke, redoSketchStroke, registerHandwritingConversion, type SketchStroke, } from "@/library/state/sketches.svelte";
   import { recognizeHandwritingStrokes } from "@/library/handwriting/handwritingRecognizer";
   import { fetchDynamicSuggestions } from "@/library/suggestions/dynamicSuggestions";
   import { resolveNonOverlapForBlock } from "@/library/layout/layoutResolve";
@@ -30,6 +12,7 @@
   import StructureMenu from "./StructureMenu.svelte";
   import SideToolbar from "./SideToolbar.svelte";
   import { focusBlockRoot } from "@/library/focus/focusRegistry";
+  import { isEditingTextField } from "@/library/focus/focus-util";
 
   type Props = {
     penActive?: boolean;
@@ -449,14 +432,6 @@
     };
   }
 
-  function handleSelectNote() {
-    const pt = getViewportPlacementPoint();
-    const placed = placeBlockAt(createNoteBlock(), pt.x - 4, pt.y - 4);
-    doc.selectedBlockId = placed.id;
-    doc.insertAnchor = null;
-    void tick().then(() => focusBlockRoot(placed.id));
-  }
-
   function handleSelectArray() {
     const pt = getViewportPlacementPoint();
     const placed = placeBlockAt(createArrayBlock(4), pt.x, pt.y);
@@ -473,6 +448,25 @@
     doc.cellLinearFocus = 0;
     doc.insertAnchor = null;
     void tick().then(() => focusBlockRoot(placed.id));
+  }
+
+  function handleSelectSpine() {
+    const pt = getViewportPlacementPoint();
+    const placed = placeBlockAt({ id: crypto.randomUUID(), type: "spine" }, 0, pt.y);
+    doc.selectedBlockId = placed.id;
+    doc.insertAnchor = null;
+  }
+
+  function handleUndo() {
+    if (!undoSketchStroke()) {
+      undoEditor();
+    }
+  }
+
+  function handleRedo() {
+    if (!redoSketchStroke()) {
+      redoEditor();
+    }
   }
 
   function onCanvasDragOver(e: DragEvent) {
@@ -503,16 +497,33 @@
       doc.selectedBlockId = placed.id;
       doc.cellLinearFocus = 0;
       void tick().then(() => focusBlockRoot(placed.id));
+    } else if (tool === 'spine') {
+      const placed = placeBlockAt({ id: crypto.randomUUID(), type: 'spine' }, 0, p.y);
+      doc.selectedBlockId = placed.id;
     }
   }
 
-  const activeTool = $derived<string | null>(
-    penActive
-      ? 'pen'
-      : doc.selectedBlockId
-        ? doc.blocks.find((b) => b.id === doc.selectedBlockId)?.type ?? null
-        : null
-  );
+  type CanvasTool = 'pen' | 'eraser' | 'text' | 'shapes' | 'arrow' | 'square' | 'line' | null;
+  let activeCanvasTool = $state<CanvasTool>(null);
+
+  // Sync penActive prop with activeCanvasTool
+  $effect(() => {
+    if (penActive) {
+      activeCanvasTool = 'pen';
+    } else if (activeCanvasTool === 'pen') {
+      activeCanvasTool = null;
+    }
+  });
+
+  function setCanvasTool(tool: CanvasTool) {
+    if (tool === 'pen') {
+      if (!penActive) onTogglePen?.();
+      activeCanvasTool = 'pen';
+    } else {
+      if (penActive) onTogglePen?.();
+      activeCanvasTool = tool;
+    }
+  }
 
   const activeNote = $derived(
     doc.selectedBlockId
@@ -582,6 +593,18 @@
     if (e.button !== 0 && e.button !== 1) return;
     const t = e.target as HTMLElement;
     if (t.closest(".side-toolbar")) return;
+
+    if (activeCanvasTool === 'text' && e.button === 0) {
+      const p = canvasPointFromClient(e.clientX, e.clientY);
+      if (p) {
+        e.preventDefault();
+        const placed = placeBlockAt(createNoteBlock(), p.x - 4, p.y - 4);
+        doc.selectedBlockId = placed.id;
+        activeCanvasTool = null;
+        void tick().then(() => focusBlockRoot(placed.id));
+        return;
+      }
+    }
 
     if (e.button === 1) {
       isPanning = true;
@@ -877,7 +900,217 @@
     }
   }
 
+  function distToSegment(px: number, py: number, x1: number, y1: number, x2: number, y2: number): number {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const l2 = dx * dx + dy * dy;
+    if (l2 === 0) return Math.hypot(px - x1, py - y1);
+    let t = ((px - x1) * dx + (py - y1) * dy) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+  }
+
+  function strokeIntersectsPoint(stroke: SketchStroke, px: number, py: number, radius = 18): boolean {
+    const pts = stroke.points;
+    if (pts.length === 0) return false;
+    if (pts.length === 1) return Math.hypot(px - pts[0].x, py - pts[0].y) <= radius;
+    for (let i = 0; i < pts.length - 1; i++) {
+      if (distToSegment(px, py, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y) <= radius) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let isErasing = $state(false);
+
+  function eraseAtPoint(clientX: number, clientY: number) {
+    const p = surfacePoint(clientX, clientY);
+    if (!p) return;
+    const toRemove: string[] = [];
+    for (const s of sketchStrokes) {
+      if (strokeIntersectsPoint(s, p.x, p.y, 20)) {
+        toRemove.push(s.id);
+      }
+    }
+    if (toRemove.length > 0) {
+      removeStrokesByIds(toRemove);
+    }
+  }
+
+  function onEraserDown(e: PointerEvent) {
+    if (e.button !== 0) return;
+    isErasing = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    eraseAtPoint(e.clientX, e.clientY);
+  }
+
+  function onEraserMove(e: PointerEvent) {
+    if (!isErasing || (e.buttons & 1) === 0) return;
+    eraseAtPoint(e.clientX, e.clientY);
+  }
+
+  function onEraserUp(e: PointerEvent) {
+    isErasing = false;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function computeArrowPoints(start: { x: number; y: number }, end: { x: number; y: number }): { x: number; y: number }[] {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const angle = Math.atan2(dy, dx);
+    const headLen = Math.min(18, Math.max(10, Math.hypot(dx, dy) * 0.25));
+    const wingAngle = Math.PI / 6;
+
+    const wing1 = {
+      x: Math.round(end.x - headLen * Math.cos(angle - wingAngle)),
+      y: Math.round(end.y - headLen * Math.sin(angle - wingAngle)),
+    };
+    const wing2 = {
+      x: Math.round(end.x - headLen * Math.cos(angle + wingAngle)),
+      y: Math.round(end.y - headLen * Math.sin(angle + wingAngle)),
+    };
+
+    return [start, end, wing1, end, wing2];
+  }
+
+  let shapeLive = $state<{
+    tool: 'arrow' | 'square' | 'line';
+    start: { x: number; y: number };
+    current: { x: number; y: number };
+    color: string;
+  } | null>(null);
+
+  const isShapeDrawingTool = $derived(
+    activeCanvasTool === 'arrow' ||
+    activeCanvasTool === 'square' ||
+    activeCanvasTool === 'line'
+  );
+
+  function onShapeDown(e: PointerEvent) {
+    if (e.button !== 0) return;
+    if (!isShapeDrawingTool) return;
+    const p = surfacePoint(e.clientX, e.clientY);
+    if (!p) return;
+    shapeLive = {
+      tool: activeCanvasTool as 'arrow' | 'square' | 'line',
+      start: p,
+      current: p,
+      color: penStrokeColor,
+    };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onShapeMove(e: PointerEvent) {
+    if (!shapeLive || (e.buttons & 1) === 0) return;
+    const p = surfacePoint(e.clientX, e.clientY);
+    if (!p) return;
+    let cur = p;
+
+    if (e.shiftKey) {
+      const dx = cur.x - shapeLive.start.x;
+      const dy = cur.y - shapeLive.start.y;
+      if (shapeLive.tool === 'square') {
+        const size = Math.max(Math.abs(dx), Math.abs(dy));
+        cur = {
+          x: shapeLive.start.x + Math.sign(dx || 1) * size,
+          y: shapeLive.start.y + Math.sign(dy || 1) * size,
+        };
+      } else {
+        const dist = Math.hypot(dx, dy);
+        const angle = Math.atan2(dy, dx);
+        const snappedAngle = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
+        cur = {
+          x: Math.round(shapeLive.start.x + dist * Math.cos(snappedAngle)),
+          y: Math.round(shapeLive.start.y + dist * Math.sin(snappedAngle)),
+        };
+      }
+    }
+
+    shapeLive = {
+      ...shapeLive,
+      current: cur,
+    };
+  }
+
+  function onShapeUp(e: PointerEvent) {
+    if (!shapeLive) return;
+    const { tool, start, current, color } = shapeLive;
+    shapeLive = null;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+
+    const dist = Math.hypot(current.x - start.x, current.y - start.y);
+    if (dist < 4) return;
+
+    let pts: { x: number; y: number }[] = [];
+    if (tool === 'line') {
+      pts = [start, current];
+    } else if (tool === 'square') {
+      const x1 = Math.min(start.x, current.x);
+      const y1 = Math.min(start.y, current.y);
+      const x2 = Math.max(start.x, current.x);
+      const y2 = Math.max(start.y, current.y);
+      pts = [
+        { x: x1, y: y1 },
+        { x: x2, y: y1 },
+        { x: x2, y: y2 },
+        { x: x1, y: y2 },
+        { x: x1, y: y1 },
+      ];
+    } else if (tool === 'arrow') {
+      pts = computeArrowPoints(start, current);
+    }
+
+    if (pts.length > 0) {
+      appendSketchStroke({
+        id: crypto.randomUUID(),
+        points: pts,
+        color,
+      });
+      // Automatically deselect after drawing once, returning to normal pointer mode
+      activeCanvasTool = null;
+    }
+  }
+
   function onWindowKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      if (activeCanvasTool !== null) {
+        if (penActive) onTogglePen?.();
+        activeCanvasTool = null;
+        return;
+      }
+      if (doc.selectedBlockId) {
+        doc.selectedBlockId = null;
+        return;
+      }
+    }
+
+    if (!isEditingTextField() && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key.toLowerCase() === "e") {
+        e.preventDefault();
+        setCanvasTool(activeCanvasTool === 'eraser' ? null : 'eraser');
+        return;
+      }
+      if (e.key.toLowerCase() === "t") {
+        e.preventDefault();
+        setCanvasTool(activeCanvasTool === 'text' ? null : 'text');
+        return;
+      }
+      if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        setCanvasTool(activeCanvasTool === 'shapes' ? null : 'shapes');
+        return;
+      }
+    }
+
     if (penActive && autoHandwritingActive.value) {
       if (e.key === "Escape") {
         if (doc.selectedBlockId) {
@@ -916,6 +1149,9 @@
   class="viewport"
   class:is-panning={isPanning}
   class:smart-pen-active={penActive && autoHandwritingActive.value}
+  class:mode-eraser={activeCanvasTool === 'eraser'}
+  class:mode-text={activeCanvasTool === 'text'}
+  class:mode-crosshair={isShapeDrawingTool}
   class:is-dragging={drag !== null}
   bind:this={canvasEl}
   role="application"
@@ -930,11 +1166,15 @@
 >
   <SideToolbar
     {penActive}
-    activeTool={activeTool}
-    onSelectNote={handleSelectNote}
-    onSelectArray={handleSelectArray}
-    onSelectMatrix={handleSelectMatrix}
+    {activeCanvasTool}
     onTogglePen={() => onTogglePen?.()}
+    onSelectTool={setCanvasTool}
+    onInsertArray={handleSelectArray}
+    onInsertMatrix={handleSelectMatrix}
+    onInsertSpine={handleSelectSpine}
+    onOpenAutoCreate={() => onOpenAutoCreate?.(getViewportPlacementPoint())}
+    onUndo={handleUndo}
+    onRedo={handleRedo}
   />
 
   <div class="canvas-surface">
@@ -1122,6 +1362,41 @@
             points={polyPoints(sketchLive.points)}
           />
         {/if}
+        {#if shapeLive}
+          {#if shapeLive.tool === 'line'}
+            <line
+              x1={shapeLive.start.x}
+              y1={shapeLive.start.y}
+              x2={shapeLive.current.x}
+              y2={shapeLive.current.y}
+              stroke={shapeLive.color}
+              stroke-width="2.8"
+              stroke-linecap="round"
+            />
+          {:else if shapeLive.tool === 'square'}
+            <rect
+              x={Math.min(shapeLive.start.x, shapeLive.current.x)}
+              y={Math.min(shapeLive.start.y, shapeLive.current.y)}
+              width={Math.abs(shapeLive.current.x - shapeLive.start.x)}
+              height={Math.abs(shapeLive.current.y - shapeLive.start.y)}
+              rx="4"
+              fill="none"
+              stroke={shapeLive.color}
+              stroke-width="2.8"
+              stroke-linejoin="round"
+            />
+          {:else if shapeLive.tool === 'arrow'}
+            <polyline
+              class="pen-line live"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke={shapeLive.color}
+              stroke-width="2.8"
+              points={polyPoints(computeArrowPoints(shapeLive.start, shapeLive.current))}
+            />
+          {/if}
+        {/if}
       </svg>
     </div>
 
@@ -1134,6 +1409,30 @@
         onpointermove={onPenMove}
         onpointerup={onPenUp}
         onpointercancel={onPenUp}
+      ></div>
+    {/if}
+
+    {#if activeCanvasTool === 'eraser'}
+      <div
+        class="eraser-capture"
+        role="presentation"
+        aria-hidden="true"
+        onpointerdown={onEraserDown}
+        onpointermove={onEraserMove}
+        onpointerup={onEraserUp}
+        onpointercancel={onEraserUp}
+      ></div>
+    {/if}
+
+    {#if isShapeDrawingTool}
+      <div
+        class="shape-capture"
+        role="presentation"
+        aria-hidden="true"
+        onpointerdown={onShapeDown}
+        onpointermove={onShapeMove}
+        onpointerup={onShapeUp}
+        onpointercancel={onShapeUp}
       ></div>
     {/if}
   </div>
@@ -1296,13 +1595,24 @@
     pointer-events: none;
   }
 
-  .pen-capture {
+  .pen-capture,
+  .eraser-capture,
+  .shape-capture {
     position: absolute;
     inset: 0;
     z-index: 20;
     touch-action: none;
     cursor: crosshair;
     background: transparent;
+  }
+
+  .viewport.mode-eraser,
+  .viewport.mode-crosshair {
+    cursor: crosshair;
+  }
+
+  .viewport.mode-text {
+    cursor: text;
   }
 
   .pen-line {

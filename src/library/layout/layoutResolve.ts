@@ -30,12 +30,7 @@ function intersects(
   b: { x: number; y: number; w: number; h: number },
   gap: number,
 ): boolean {
-  return !(
-    a.x + a.w + gap <= b.x ||
-    b.x + b.w + gap <= a.x ||
-    a.y + a.h + gap <= b.y ||
-    b.y + b.h + gap <= a.y
-  );
+  return !(a.x + a.w + gap <= b.x || b.x + b.w + gap <= a.x || a.y + a.h + gap <= b.y || b.y + b.h + gap <= a.y);
 }
 
 /**
