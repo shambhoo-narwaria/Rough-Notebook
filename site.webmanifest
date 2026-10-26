@@ -1,7 +1,7 @@
 {
-  "name": "Rough Notebook — Think it. Trace it. Solve it.",
+  "name": "Rough Notebook by Shambhoo Narwaria — The digital scratchpad LeetCode forgot to build",
   "short_name": "Rough Notebook",
-  "description": "Keyboard-first digital rough notebook for DSA, algorithms, and coding interviews.",
+  "description": "Rough Notebook (shambhoo-narwaria/Rough-Notebook) — The digital scratchpad LeetCode forgot to build. A free visual DSA dry run tool and algorithm whiteboard for LeetCode, HackerRank, and Codeforces.",
   "start_url": "https://shambhoo-narwaria.github.io/Rough-Notebook/",
   "scope": "https://shambhoo-narwaria.github.io/Rough-Notebook/",
   "display": "standalone",

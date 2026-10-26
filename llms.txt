@@ -1,14 +1,15 @@
-# Rough Notebook
+# Rough Notebook (shambhoo-narwaria/Rough-Notebook)
 
-> Your digital rough notebook for working things out. A free, browser-based scratchpad for quick notes, rough sketches, calculations, and visual problem-solving, with built-in arrays, matrix grids, and pointer annotations for coding and DSA problem-solving.
+> **The digital scratchpad LeetCode forgot to build.**  
+> A free visual DSA dry run tool and algorithm whiteboard by Shambhoo Narwaria. Built for quick notes, rough sketches, trace tables, 1D array blocks with auto-computed indices, 2D DP matrix grids, and pointer annotations alongside LeetCode, HackerRank, and Codeforces.
 
 ## Overview
-- Product: Rough Notebook
-- Tagline: Your digital rough notebook for working things out — the visual companion for solving coding problems.
+- Product: Rough Notebook (Rough Notebook DSA dry run tool / LeetCode scratchpad)
+- Tagline: The digital scratchpad LeetCode forgot to build — your digital rough notebook for working things out.
 - Live URL: https://shambhoo-narwaria.github.io/Rough-Notebook/
 - Repository: https://github.com/shambhoo-narwaria/Rough-Notebook
 - License: MIT Open Source
-- Author: Shambhoo Narwaria
+- Author: Shambhoo Narwaria (shambhoo-narwaria)
 - Practice Companion For: LeetCode, NeetCode, HackerRank, Codeforces, CodeChef, and technical interview preparation.
 - Core Purpose: Fast, distraction-free visual dry-running of algorithm logic, trace tables, two-pointer techniques, sliding windows, and recursion state.
 
