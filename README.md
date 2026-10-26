@@ -1,14 +1,11 @@
-# Rough Notebook
+# Rough Notebook (`shambhoo-narwaria/Rough-Notebook`)
 
-**Your digital rough notebook for working things out.**  
-*The visual companion for solving coding problems.*
+> **The digital scratchpad LeetCode forgot to build.**  
+> *A free visual DSA dry run tool and algorithm scratchpad by [Shambhoo Narwaria](https://github.com/shambhoo-narwaria).*
 
-Work through notes, sketches, and coding problems visually. Sketch your approach, test examples, trace arrays and pointers, and work through dynamic programming tables before writing your solution.
+**Rough Notebook** is your digital rough notebook for working things out &mdash; the ultimate LeetCode scratchpad and visual companion for dry-running coding problems. Sketch ideas, trace arrays and pointers, and step through dynamic programming tables alongside **LeetCode**, **HackerRank**, **Codeforces**, **CodeChef**, and **GeeksforGeeks**.
 
-Works alongside your favourite coding practice platforms:
-**LeetCode** &middot; **HackerRank** &middot; **Codeforces** &middot; **CodeChef** &middot; **GeeksforGeeks** &middot; **AtCoder**
-
-[**Open Rough Notebook — free, no signup**](https://shambhoo-narwaria.github.io/Rough-Notebook/) &middot; [Report a bug or request a feature](https://github.com/shambhoo-narwaria/Rough-Notebook/issues)
+[**Open Rough Notebook — Free, No Signup**](https://shambhoo-narwaria.github.io/Rough-Notebook/) &middot; [Report a Bug / Request a Feature](https://github.com/shambhoo-narwaria/Rough-Notebook/issues)
 
 [![Live Demo](https://img.shields.io/badge/Live_App-GitHub_Pages-7C3AED.svg?style=flat-square&logo=github&logoColor=white)](https://shambhoo-narwaria.github.io/Rough-Notebook/)
 [![GitHub Stars](https://img.shields.io/github/stars/shambhoo-narwaria/Rough-Notebook?style=flat-square&logo=github&color=F59E0B)](https://github.com/shambhoo-narwaria/Rough-Notebook/stargazers)
