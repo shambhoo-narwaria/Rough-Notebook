@@ -451,7 +451,7 @@
   .logo-title {
     font-family: var(--brand-display);
     font-weight: 750;
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.1;
     letter-spacing: -0.02em;
     color: var(--text-h);
@@ -471,7 +471,7 @@
 
   .logo-tag {
     display: none;
-    font-size: 9.5px;
+    font-size: 11px;
     color: var(--muted);
     letter-spacing: 0.01em;
     white-space: nowrap;
@@ -510,7 +510,7 @@
   .page-rename-input {
     height: 26px;
     padding: 0 8px;
-    font: 600 11.5px/1 var(--sans);
+    font: 600 12px/1 var(--sans);
     color: var(--text-h);
     background: var(--surface);
     border: 1px solid var(--accent-primary);
@@ -551,7 +551,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     color: var(--text-h);
-    font: 600 11.5px/1 var(--sans);
+    font: 600 12px/1 var(--sans);
     cursor: pointer;
     transition: all 0.12s ease;
     max-width: 170px;
@@ -726,7 +726,7 @@
   }
 
   .rename-trigger-btn {
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--accent-primary);
     background: transparent;
@@ -782,7 +782,7 @@
 
   .item-index {
     color: var(--muted);
-    font-size: 10.5px;
+    font-size: 11px;
     font-family: var(--mono);
     flex-shrink: 0;
   }

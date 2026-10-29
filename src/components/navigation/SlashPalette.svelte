@@ -274,7 +274,7 @@
   }
 
   .title {
-    font: 600 13.5px var(--sans);
+    font: 600 14px var(--sans);
     color: var(--text-h);
   }
 
@@ -285,7 +285,7 @@
   }
 
   .cmd-desc {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--muted);
     white-space: nowrap;
     overflow: hidden;

@@ -252,7 +252,7 @@
 
   .help-p {
     margin: 0 0 12px;
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.6;
     color: var(--text);
   }
@@ -263,7 +263,7 @@
     flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 12px;
-    font-size: 11.5px;
+    font-size: 12px;
   }
 
   .companion-label {

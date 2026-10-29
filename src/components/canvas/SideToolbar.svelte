@@ -618,7 +618,7 @@
   }
 
   .dock-label {
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 700;
     color: var(--accent-primary);
     letter-spacing: 0.05em;

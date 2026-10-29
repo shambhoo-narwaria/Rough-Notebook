@@ -180,7 +180,7 @@
     border: none;
     background: transparent;
     color: var(--text-h);
-    font: 500 13.5px/1.5 var(--sans);
+    font: 500 14px/1.5 var(--sans);
     padding: 2px 4px;
     outline: none;
     white-space: pre;

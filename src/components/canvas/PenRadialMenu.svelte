@@ -406,7 +406,7 @@
     }
     .mode-btn {
       padding: 2px 5px;
-      font-size: 9.5px;
+      font-size: 11px;
     }
   }
 </style>
