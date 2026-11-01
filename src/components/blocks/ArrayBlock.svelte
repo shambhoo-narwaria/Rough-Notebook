@@ -215,6 +215,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="wrap"
+  class:menu-open={pointerMenuOpen}
   bind:this={root}
   tabindex="0"
   role="application"
@@ -225,8 +226,12 @@
   onclick={() => setSelectedBlock(block.id)}
 >
   <!-- Top Pointers Control Strip: [ ⇄ Pointers ▾ ] [ Clear ] -->
-  <div class="pointer-header-strip" class:is-visible={isHovered || selected || pointers.length > 0 || pointerMenuOpen}>
-    <div class="pointer-menu-wrap" bind:this={pointerMenuEl}>
+  <div
+    class="pointer-header-strip"
+    class:menu-open={pointerMenuOpen}
+    class:is-visible={isHovered || selected || pointers.length > 0 || pointerMenuOpen}
+  >
+    <div class="pointer-menu-wrap" class:menu-open={pointerMenuOpen} bind:this={pointerMenuEl}>
       <button
         type="button"
         class="capsule-btn"
@@ -549,6 +554,12 @@
     width: fit-content;
     max-width: min(92vw, 960px);
     position: relative;
+    z-index: 2;
+  }
+
+  .wrap.menu-open,
+  .wrap:focus-within {
+    z-index: 80;
   }
 
   .wrap:focus-visible {
@@ -566,6 +577,8 @@
     pointer-events: none;
     transition: opacity 0.16s ease, transform 0.16s ease;
     user-select: none;
+    position: relative;
+    z-index: 30;
   }
 
   .pointer-header-strip.is-visible {
@@ -574,9 +587,18 @@
     pointer-events: auto;
   }
 
+  .pointer-header-strip.menu-open {
+    z-index: 100;
+  }
+
   .pointer-menu-wrap {
     position: relative;
     display: inline-flex;
+    z-index: 40;
+  }
+
+  .pointer-menu-wrap.menu-open {
+    z-index: 120;
   }
 
   .capsule-btn {
@@ -658,8 +680,8 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
-    z-index: 300;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25), 0 4px 14px rgba(0, 0, 0, 0.15);
+    z-index: 500;
     padding: 5px;
     animation: dropdownSlideIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }

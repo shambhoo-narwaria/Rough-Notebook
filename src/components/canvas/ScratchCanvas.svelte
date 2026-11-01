@@ -1964,6 +1964,11 @@
       box-shadow 0.15s ease;
   }
 
+  .placed:focus-within,
+  .placed:has(.menu-open) {
+    z-index: 45;
+  }
+
   .placed:not(.spine-placed) {
     width: max-content;
     max-width: min(92vw, 960px);
