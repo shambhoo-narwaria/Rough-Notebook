@@ -19,6 +19,8 @@
   let { block }: Props = $props();
 
   let root: HTMLDivElement | null = $state(null);
+  let pointerMenuEl: HTMLDivElement | null = $state(null);
+  let pointerMenuOpen = $state(false);
   let selectedPointerId = $state<string | null>(null);
   let editingPointerId = $state<string | null>(null);
   let editPointerName = $state('');
@@ -27,6 +29,19 @@
   $effect(() => {
     registerBlockRoot(block.id, root);
     return () => registerBlockRoot(block.id, null);
+  });
+
+  function handleDocumentClick(e: MouseEvent) {
+    if (pointerMenuOpen && pointerMenuEl && !pointerMenuEl.contains(e.target as Node)) {
+      pointerMenuOpen = false;
+    }
+  }
+
+  $effect(() => {
+    if (pointerMenuOpen) {
+      window.addEventListener('mousedown', handleDocumentClick);
+      return () => window.removeEventListener('mousedown', handleDocumentClick);
+    }
   });
 
   const selected = $derived(doc.selectedBlockId === block.id);
@@ -119,6 +134,7 @@
         e.preventDefault();
         e.stopPropagation();
         selectedPointerId = null;
+        pointerMenuOpen = false;
         return;
       }
     }
@@ -188,7 +204,7 @@
   }
 
   function handleAddCustomPointer() {
-    const defaultNames = ['L', 'R', 'i', 'j', 'slow', 'fast', 'p'];
+    const defaultNames = ['L', 'R', 'i', 'j', 'slow', 'fast', 'mid', 'cur'];
     const usedNames = new Set((block.pointers ?? []).map((p) => p.name));
     const nextName = defaultNames.find((n) => !usedNames.has(n)) ?? `p${(block.pointers?.length ?? 0) + 1}`;
     addArrayPointer(block.id, nextName, 0);
@@ -208,89 +224,153 @@
   onmouseleave={() => (isHovered = false)}
   onclick={() => setSelectedBlock(block.id)}
 >
-  <!-- Interactive Two-Pointer Action Toolbar -->
-  <div class="pointer-toolbar" class:is-visible={isHovered || selected || pointers.length > 0}>
-    <div class="preset-group">
+  <!-- Top Pointers Control Strip: [ ⇄ Pointers ▾ ] [ Clear ] -->
+  <div class="pointer-header-strip" class:is-visible={isHovered || selected || pointers.length > 0 || pointerMenuOpen}>
+    <div class="pointer-menu-wrap" bind:this={pointerMenuEl}>
       <button
         type="button"
-        class="preset-btn"
-        title="Apply Left & Right Two-Pointer algorithm setup"
-        onclick={() => setArrayPointerPreset(block.id, 'two_pointer')}
+        class="capsule-btn"
+        class:is-active={pointerMenuOpen}
+        onclick={(e) => {
+          e.stopPropagation();
+          pointerMenuOpen = !pointerMenuOpen;
+        }}
+        title="Pointers algorithm presets"
+        aria-haspopup="menu"
+        aria-expanded={pointerMenuOpen}
       >
-        <span class="btn-dot dot-cyan"></span>
-        <span class="btn-dot dot-rose"></span>
-        <span>L & R</span>
-      </button>
-
-      <button
-        type="button"
-        class="preset-btn"
-        title="Apply i & j index pointer setup"
-        onclick={() => setArrayPointerPreset(block.id, 'ij')}
-      >
-        <span class="btn-dot dot-purple"></span>
-        <span class="btn-dot dot-amber"></span>
-        <span>i & j</span>
-      </button>
-
-      <button
-        type="button"
-        class="preset-btn"
-        title="Apply Fast & Slow pointer (Floyd's cycle detection) setup"
-        onclick={() => setArrayPointerPreset(block.id, 'slow_fast')}
-      >
-        <span class="btn-dot dot-emerald"></span>
-        <span class="btn-dot dot-cyan"></span>
-        <span>Slow / Fast</span>
-      </button>
-
-      <button
-        type="button"
-        class="preset-btn add-btn"
-        title="Add new pointer badge"
-        onclick={handleAddCustomPointer}
-      >
-        <svg viewBox="0 0 20 20" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="10" y1="4" x2="10" y2="16" />
-          <line x1="4" y1="10" x2="16" y2="10" />
-        </svg>
-        <span>Pointer</span>
-      </button>
-
-      {#if pointers.length > 0}
-        <button
-          type="button"
-          class="preset-btn clear-ptr-btn"
-          title="Remove all pointers"
-          onclick={() => setArrayPointerPreset(block.id, 'clear')}
+        <span class="capsule-icon">⇄</span>
+        <span class="capsule-label">
+          {#if pointers.length === 0}
+            Pointers
+          {:else}
+            Pointers ({pointers.length})
+          {/if}
+        </span>
+        <svg
+          class="chevron-icon"
+          class:rotate={pointerMenuOpen}
+          viewBox="0 0 20 20"
+          width="8"
+          height="8"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          <span>Clear</span>
-        </button>
+          <polyline points="6 8 10 12 14 8" />
+        </svg>
+      </button>
+
+      <!-- Dropdown of Pointer Options -->
+      {#if pointerMenuOpen}
+        <div class="pointer-dropdown" role="menu">
+          <div class="dropdown-header">
+            <span class="dropdown-header-title">Pointer Algorithms</span>
+          </div>
+
+          <div class="dropdown-section">
+            <button
+              type="button"
+              class="dropdown-item-btn"
+              onclick={() => {
+                setArrayPointerPreset(block.id, 'two_pointer');
+                pointerMenuOpen = false;
+              }}
+            >
+              <div class="item-dots">
+                <span class="dot dot-cyan"></span>
+                <span class="dot dot-rose"></span>
+              </div>
+              <div class="item-text">
+                <span class="item-title">Two-Pointer (L & R)</span>
+                <span class="item-desc">Left at 0, Right at end</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="dropdown-item-btn"
+              onclick={() => {
+                setArrayPointerPreset(block.id, 'ij');
+                pointerMenuOpen = false;
+              }}
+            >
+              <div class="item-dots">
+                <span class="dot dot-purple"></span>
+                <span class="dot dot-amber"></span>
+              </div>
+              <div class="item-text">
+                <span class="item-title">Index Scan (i & j)</span>
+                <span class="item-desc">i at 0, j at 1</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="dropdown-item-btn"
+              onclick={() => {
+                setArrayPointerPreset(block.id, 'slow_fast');
+                pointerMenuOpen = false;
+              }}
+            >
+              <div class="item-dots">
+                <span class="dot dot-emerald"></span>
+                <span class="dot dot-cyan"></span>
+              </div>
+              <div class="item-text">
+                <span class="item-title">Slow & Fast (Floyd's Cycle)</span>
+                <span class="item-desc">slow at 0, fast at 0</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+          <div class="dropdown-section">
+            <button
+              type="button"
+              class="dropdown-item-btn"
+              onclick={() => {
+                handleAddCustomPointer();
+                pointerMenuOpen = false;
+              }}
+            >
+              <div class="item-icon-box">
+                <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="10" y1="4" x2="10" y2="16" />
+                  <line x1="4" y1="10" x2="16" y2="10" />
+                </svg>
+              </div>
+              <div class="item-text">
+                <span class="item-title">Add Custom Pointer</span>
+                <span class="item-desc">Create tagged pointer</span>
+              </div>
+            </button>
+          </div>
+        </div>
       {/if}
     </div>
 
-    <!-- Cell Count Controls -->
-    <div class="cell-ctrl-group">
+    <!-- Clear Button (shows when pointers are placed on the array) -->
+    {#if pointers.length > 0}
       <button
         type="button"
-        class="cell-adj-btn"
-        title="Add cell to array"
-        onclick={handleAddCell}
-        aria-label="Add cell"
+        class="clear-capsule-btn"
+        onclick={(e) => {
+          e.stopPropagation();
+          setArrayPointerPreset(block.id, 'clear');
+        }}
+        title="Clear all pointers"
       >
-        +
+        <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        <span>Clear</span>
       </button>
-      <button
-        type="button"
-        class="cell-adj-btn"
-        disabled={block.values.length <= 1}
-        title="Remove last cell"
-        onclick={handleRemoveCell}
-        aria-label="Remove cell"
-      >
-        −
-      </button>
-    </div>
+    {/if}
   </div>
 
   <div class="scale">
@@ -412,6 +492,40 @@
           </div>
         </div>
       {/each}
+
+      <!-- Separated Add / Remove Cell Action at the tail of the array -->
+      <div class="add-cell-col" class:is-visible={isHovered || selected}>
+        <div class="pointer-track-spacer"></div>
+        <div class="idx-spacer"></div>
+        <div class="cell-action-group">
+          <button
+            type="button"
+            class="cell-add-btn"
+            onclick={handleAddCell}
+            title="Add cell to array"
+            aria-label="Add cell"
+          >
+            <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="10" y1="4" x2="10" y2="16" />
+              <line x1="4" y1="10" x2="16" y2="10" />
+            </svg>
+          </button>
+
+          {#if block.values.length > 1}
+            <button
+              type="button"
+              class="cell-remove-btn"
+              onclick={handleRemoveCell}
+              title="Remove last cell"
+              aria-label="Remove cell"
+            >
+              <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="10" x2="16" y2="10" />
+              </svg>
+            </button>
+          {/if}
+        </div>
+      </div>
     </div>
 
     <!-- Sliding Window Underline Bracket (when active) -->
@@ -441,12 +555,11 @@
     border-color: var(--border-glow);
   }
 
-  /* ── Interactive Pointer Toolbar ────────────────────────────────────────── */
-  .pointer-toolbar {
+  /* ── Pointer Header Strip: [ ⇄ Pointers ▾ ] [ Clear ] ───────────────────── */
+  .pointer-header-strip {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 6px;
     opacity: 0;
     transform: translateY(2px);
@@ -455,104 +568,206 @@
     user-select: none;
   }
 
-  .pointer-toolbar.is-visible {
+  .pointer-header-strip.is-visible {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
 
-  .preset-group {
+  .pointer-menu-wrap {
+    position: relative;
     display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: color-mix(in srgb, var(--surface) 90%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 2px 4px;
-    box-shadow: var(--shadow-sm);
   }
 
-  .preset-btn {
+  .capsule-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--muted);
-    font: 600 10.5px var(--sans);
+    gap: 5px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--text-h);
+    font: 600 11px var(--sans);
     cursor: pointer;
-    transition: all 0.12s ease;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s ease;
     white-space: nowrap;
   }
 
-  .preset-btn:hover {
+  .capsule-btn:hover,
+  .capsule-btn.is-active {
     background: var(--surface-2);
-    border-color: var(--border);
-    color: var(--text-h);
-  }
-
-  .preset-btn.add-btn:hover {
+    border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border));
     color: var(--accent-primary);
-    border-color: color-mix(in srgb, var(--accent-primary) 30%, var(--border));
+    box-shadow: 0 2px 8px var(--accent-primary-glow);
+    transform: translateY(-1px);
   }
 
-  .preset-btn.clear-ptr-btn:hover {
+  .capsule-icon {
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .chevron-icon {
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+
+  .chevron-icon.rotate {
+    transform: rotate(180deg);
+  }
+
+  .clear-capsule-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--muted);
+    font: 600 10.5px var(--sans);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .clear-capsule-btn:hover {
+    background: color-mix(in srgb, var(--accent-r) 10%, var(--surface));
+    border-color: color-mix(in srgb, var(--accent-r) 40%, var(--border));
     color: var(--accent-r);
+    transform: translateY(-1px);
   }
 
-  .btn-dot {
-    width: 6px;
-    height: 6px;
+  /* ── Dropdown of Pointer Options ────────────────────────────────────────── */
+  .pointer-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 220px;
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+    z-index: 300;
+    padding: 5px;
+    animation: dropdownSlideIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes dropdownSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .dropdown-header {
+    padding: 5px 7px 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3px;
+  }
+
+  .dropdown-header-title {
+    font: 700 10.5px var(--sans);
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .dropdown-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .dropdown-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-h);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.12s ease;
+  }
+
+  .dropdown-item-btn:hover {
+    background: var(--surface-2);
+    transform: translateX(2px);
+  }
+
+  .item-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
   }
 
   .dot-cyan { background: #06b6d4; }
   .dot-rose { background: #f43f5e; }
   .dot-purple { background: #a855f7; }
-  .dot-emerald { background: #10b981; }
   .dot-amber { background: #f59e0b; }
+  .dot-emerald { background: #10b981; }
 
-  .cell-ctrl-group {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    background: color-mix(in srgb, var(--surface) 90%, transparent);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 2px 3px;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .cell-adj-btn {
-    width: 18px;
-    height: 20px;
+  .item-icon-box {
+    width: 17px;
+    height: 17px;
     border-radius: 4px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--muted);
-    font: 600 12px var(--mono);
-    cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    transition: all 0.12s ease;
-  }
-
-  .cell-adj-btn:hover:not(:disabled) {
-    background: var(--surface-2);
+    background: color-mix(in srgb, var(--accent-primary) 12%, var(--surface-2));
     color: var(--accent-primary);
-    border-color: var(--border);
+    flex-shrink: 0;
   }
 
-  .cell-adj-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+  .item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .item-title {
+    font: 600 11.5px var(--sans);
+    color: var(--text-h);
+    line-height: 1.2;
+  }
+
+  .item-desc {
+    font: 500 10px var(--sans);
+    color: var(--muted);
+    line-height: 1.1;
   }
 
   /* ── Array Structure ────────────────────────────────────────────────────── */
@@ -565,7 +780,7 @@
     display: flex;
     flex-wrap: nowrap;
     align-items: flex-end;
-    gap: 10px;
+    gap: 8px;
   }
 
   .col {
@@ -578,6 +793,69 @@
     width: min-content;
     position: relative;
     transition: transform 0.15s ease;
+  }
+
+  /* ── Separated Add/Remove Cell Action ──────────────────────────────────── */
+  .add-cell-col {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0.35;
+    transition: opacity 0.15s ease;
+  }
+
+  .add-cell-col.is-visible,
+  .add-cell-col:hover {
+    opacity: 1;
+  }
+
+  .pointer-track-spacer {
+    min-height: 26px;
+    margin-bottom: 2px;
+  }
+
+  .idx-spacer {
+    height: 18px;
+  }
+
+  .cell-action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: 54px;
+    justify-content: center;
+  }
+
+  .cell-add-btn,
+  .cell-remove-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px dashed var(--border-strong);
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cell-add-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: var(--surface-2);
+    transform: scale(1.08);
+  }
+
+  .cell-remove-btn:hover {
+    border-color: var(--accent-r);
+    color: var(--accent-r);
+    background: color-mix(in srgb, var(--accent-r) 10%, var(--surface));
+    transform: scale(1.08);
   }
 
   /* ── Pointer Badges & Track ─────────────────────────────────────────────── */
