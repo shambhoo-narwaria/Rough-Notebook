@@ -46,6 +46,7 @@
     switchToPage,
     renamePage,
     deletePage,
+    persistNotebookToStorageNow,
   } from './library/state/notebookPages.svelte';
 
   let slashOpen = $state(false);
@@ -110,6 +111,40 @@
   $effect(() => {
     slashFilter;
     slashActive = 0;
+  });
+
+  // Safe event-driven background persistence (no reactive loops)
+  $effect(() => {
+    let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+    const triggerDebouncedSave = () => {
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveTimeout = null;
+        persistNotebookToStorageNow();
+      }, 800);
+    };
+
+    const onBeforeUnload = () => {
+      persistNotebookToStorageNow();
+    };
+    const onVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        persistNotebookToStorageNow();
+      }
+    };
+
+    window.addEventListener('pointerup', triggerDebouncedSave);
+    window.addEventListener('keyup', triggerDebouncedSave);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      if (saveTimeout) clearTimeout(saveTimeout);
+      window.removeEventListener('pointerup', triggerDebouncedSave);
+      window.removeEventListener('keyup', triggerDebouncedSave);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   });
 
   $effect(() => {
@@ -230,6 +265,7 @@
     replaceBlocks([]);
     clearSelection();
     clearModalOpen = false;
+    persistNotebookToStorageNow();
   }
 
   function toggleTheme() {
@@ -307,6 +343,13 @@
 
     if (slashOpen) {
       onPaletteKeydown(e);
+      return;
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      persistNotebookToStorageNow();
+      window.dispatchEvent(new CustomEvent('leetpad-toast', { detail: { message: 'Notebook saved to device!' } }));
       return;
     }
 

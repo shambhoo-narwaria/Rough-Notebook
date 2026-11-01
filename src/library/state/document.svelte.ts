@@ -1,4 +1,5 @@
 import type { ArrayBlock, Block, BlockId, MatrixBlock, NoteBlock, SpineBlock } from './types';
+import { readStoredNotebook } from './storage';
 
 export function newId(): BlockId {
   return crypto.randomUUID();
@@ -23,6 +24,10 @@ export function pushUndoPoint() {
 }
 
 function defaultBlocks(): PlacedBlock[] {
+  const stored = readStoredNotebook();
+  if (stored && stored.pages && stored.pages[stored.activePageIndex]) {
+    return JSON.parse(JSON.stringify(stored.pages[stored.activePageIndex].blocks || []));
+  }
   return [];
 }
 

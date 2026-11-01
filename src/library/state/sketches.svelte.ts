@@ -1,10 +1,19 @@
 import { doc, removeBlock } from './document.svelte';
+import { readStoredNotebook } from './storage';
 
 export type SketchStroke = { id: string; points: { x: number; y: number }[]; color: string };
 
 const MAX_SKETCH_UNDO = 50;
 
-export const sketchStrokes = $state<SketchStroke[]>([]);
+function defaultSketches(): SketchStroke[] {
+  const stored = readStoredNotebook();
+  if (stored && stored.pages && stored.pages[stored.activePageIndex]) {
+    return JSON.parse(JSON.stringify(stored.pages[stored.activePageIndex].sketches || []));
+  }
+  return [];
+}
+
+export const sketchStrokes = $state<SketchStroke[]>(defaultSketches());
 export const autoHandwritingActive = $state({ value: false });
 
 export interface ConversionRecord {

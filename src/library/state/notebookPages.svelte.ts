@@ -1,5 +1,6 @@
 import { doc, setBlocksDirect, type PlacedBlock } from './document.svelte';
 import { sketchStrokes, replaceSketches, type SketchStroke } from './sketches.svelte';
+import { readStoredNotebook, writeStoredNotebook } from './storage';
 
 export interface NotebookPage {
   id: string;
@@ -17,8 +18,22 @@ function createInitialPage(): NotebookPage {
   };
 }
 
-export const notebookPages = $state<NotebookPage[]>([createInitialPage()]);
-export const activePageIndex = $state({ value: 0 });
+const initialStored = readStoredNotebook();
+
+function initialPages(): NotebookPage[] {
+  if (initialStored && initialStored.pages && initialStored.pages.length > 0) {
+    return initialStored.pages.map((p) => ({
+      id: p.id || `page-${crypto.randomUUID()}`,
+      title: p.title || 'Page',
+      blocks: Array.isArray(p.blocks) ? p.blocks : [],
+      sketches: Array.isArray(p.sketches) ? p.sketches : [],
+    }));
+  }
+  return [createInitialPage()];
+}
+
+export const notebookPages = $state<NotebookPage[]>(initialPages());
+export const activePageIndex = $state({ value: initialStored?.activePageIndex ?? 0 });
 
 export function saveCurrentPageSnapshot() {
   const idx = activePageIndex.value;
@@ -26,6 +41,16 @@ export function saveCurrentPageSnapshot() {
     notebookPages[idx].blocks = JSON.parse(JSON.stringify(doc.blocks));
     notebookPages[idx].sketches = JSON.parse(JSON.stringify(sketchStrokes));
   }
+}
+
+export function persistNotebookToStorageNow(): boolean {
+  saveCurrentPageSnapshot();
+  return writeStoredNotebook({
+    version: 1,
+    savedAt: Date.now(),
+    activePageIndex: activePageIndex.value,
+    pages: notebookPages,
+  });
 }
 
 export function switchToPage(targetIndex: number) {
@@ -38,6 +63,7 @@ export function switchToPage(targetIndex: number) {
   const target = notebookPages[targetIndex];
   setBlocksDirect(target.blocks);
   replaceSketches(target.sketches);
+  persistNotebookToStorageNow();
 }
 
 export function createNewPage(): number {
@@ -53,6 +79,7 @@ export function createNewPage(): number {
   activePageIndex.value = notebookPages.length - 1;
   setBlocksDirect([]);
   replaceSketches([]);
+  persistNotebookToStorageNow();
   return activePageIndex.value;
 }
 
@@ -77,6 +104,7 @@ export function renamePage(index: number, newTitle: string): boolean {
     const trimmed = newTitle.trim();
     if (trimmed) {
       notebookPages[index].title = trimmed;
+      persistNotebookToStorageNow();
       return true;
     }
   }
@@ -99,6 +127,7 @@ export function deletePage(index: number): boolean {
   } else if (index < activePageIndex.value) {
     activePageIndex.value -= 1;
   }
+  persistNotebookToStorageNow();
   return true;
 }
 
@@ -143,6 +172,7 @@ export function importNotebookFromJson(jsonString: string): boolean {
     const activePage = notebookPages[targetIdx];
     setBlocksDirect(activePage.blocks);
     replaceSketches(activePage.sketches);
+    persistNotebookToStorageNow();
     return true;
   } catch (err) {
     console.error('Failed to import notebook JSON:', err);
