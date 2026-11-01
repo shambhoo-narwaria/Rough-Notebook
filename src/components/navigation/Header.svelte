@@ -2,12 +2,17 @@
   import { tick } from 'svelte';
   import PenRadialMenu from '@/components/canvas/PenRadialMenu.svelte';
   import type { PenColorKey } from '@/library/handwriting/penColor';
-  import type { NotebookPage } from '@/library/state/notebookPages.svelte';
+  import {
+    exportNotebookAsJson,
+    importNotebookFromJson,
+    type NotebookPage,
+  } from '@/library/state/notebookPages.svelte';
   import type { ThemeMode } from '@/library/theme/theme';
   import {
     copyDiagramToClipboard,
     downloadDiagramPng,
     downloadDiagramSvg,
+    downloadBlob,
   } from '@/library/export/exportCanvas';
 
   type Props = {
@@ -100,6 +105,7 @@
 
   let exportDropdownOpen = $state(false);
   let exportMenuEl: HTMLDivElement | null = $state(null);
+  let jsonFileInputEl: HTMLInputElement | null = $state(null);
   let toastMessage = $state<string | null>(null);
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
   let isExporting = $state(false);
@@ -153,6 +159,43 @@
     } catch {
       showToast('Failed to download SVG.');
     }
+  }
+
+  function handleExportJson() {
+    exportDropdownOpen = false;
+    try {
+      const json = exportNotebookAsJson();
+      const blob = new Blob([json], { type: 'application/json' });
+      downloadBlob(blob, `rough-notebook-${new Date().toISOString().slice(0, 10)}.json`);
+      showToast('Notebook backup saved (.json)!');
+    } catch {
+      showToast('Failed to export notebook.');
+    }
+  }
+
+  function triggerImportJson() {
+    exportDropdownOpen = false;
+    jsonFileInputEl?.click();
+  }
+
+  function handleFileSelected(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const content = ev.target?.result;
+      if (typeof content === 'string') {
+        const ok = importNotebookFromJson(content);
+        if (ok) {
+          showToast('Notebook restored from backup!');
+        } else {
+          showToast('Invalid notebook file format.');
+        }
+      }
+      input.value = '';
+    };
+    reader.readAsText(file);
   }
 
   $effect(() => {
@@ -473,9 +516,58 @@
               </div>
             </button>
           </div>
+
+          <div class="export-dropdown-divider"></div>
+
+          <div class="export-dropdown-section">
+            <button
+              type="button"
+              class="export-item-btn"
+              onclick={handleExportJson}
+            >
+              <div class="item-icon-box">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </div>
+              <div class="item-content">
+                <span class="item-label">Backup All Sheets (.json)</span>
+                <span class="item-sub">Save complete multi-page file</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="export-item-btn"
+              onclick={triggerImportJson}
+            >
+              <div class="item-icon-box">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="item-content">
+                <span class="item-label">Restore Notebook (.json)</span>
+                <span class="item-sub">Load sheets from backup file</span>
+              </div>
+            </button>
+          </div>
         </div>
       {/if}
     </div>
+
+    <!-- Hidden file input for notebook JSON restore -->
+    <input
+      bind:this={jsonFileInputEl}
+      type="file"
+      accept=".json,.rough"
+      style="display:none;"
+      onchange={handleFileSelected}
+    />
 
     <div class="divider-v" aria-hidden="true"></div>
 
@@ -1236,6 +1328,12 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+  }
+
+  .export-dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 3px 0;
   }
 
   .export-item-btn {

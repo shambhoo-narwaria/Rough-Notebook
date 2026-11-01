@@ -105,3 +105,48 @@ export function deletePage(index: number): boolean {
 export function deleteCurrentPage(): boolean {
   return deletePage(activePageIndex.value);
 }
+
+export function exportNotebookAsJson(): string {
+  saveCurrentPageSnapshot();
+  const data = {
+    app: 'rough-notebook',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    activePageIndex: activePageIndex.value,
+    pages: notebookPages,
+  };
+  return JSON.stringify(data, null, 2);
+}
+
+export function importNotebookFromJson(jsonString: string): boolean {
+  try {
+    const data = JSON.parse(jsonString);
+    if (!data || !Array.isArray(data.pages) || data.pages.length === 0) {
+      return false;
+    }
+    notebookPages.length = 0;
+    for (const p of data.pages) {
+      notebookPages.push({
+        id: p.id || `page-${crypto.randomUUID()}`,
+        title: p.title || 'Page',
+        blocks: Array.isArray(p.blocks) ? p.blocks : [],
+        sketches: Array.isArray(p.sketches) ? p.sketches : [],
+      });
+    }
+
+    const targetIdx =
+      typeof data.activePageIndex === 'number'
+        ? Math.max(0, Math.min(data.activePageIndex, notebookPages.length - 1))
+        : 0;
+    activePageIndex.value = targetIdx;
+
+    const activePage = notebookPages[targetIdx];
+    setBlocksDirect(activePage.blocks);
+    replaceSketches(activePage.sketches);
+    return true;
+  } catch (err) {
+    console.error('Failed to import notebook JSON:', err);
+    return false;
+  }
+}
+
