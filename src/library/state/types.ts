@@ -9,10 +9,18 @@ export type NoteBlock = {
   height?: number;
 };
 
+export type ArrayPointer = {
+  id: string;
+  name: string;
+  index: number;
+  color?: 'purple' | 'cyan' | 'emerald' | 'rose' | 'amber';
+};
+
 export type ArrayBlock = {
   id: BlockId;
   type: 'array';
   values: string[];
+  pointers?: ArrayPointer[];
 };
 
 export type MatrixBlock = {

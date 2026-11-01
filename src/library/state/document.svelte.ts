@@ -1,4 +1,4 @@
-import type { ArrayBlock, Block, BlockId, MatrixBlock, NoteBlock, SpineBlock } from './types';
+import type { ArrayBlock, ArrayPointer, Block, BlockId, MatrixBlock, NoteBlock, SpineBlock } from './types';
 import { readStoredNotebook } from './storage';
 
 export function newId(): BlockId {
@@ -171,7 +171,11 @@ export function randomSampleInt(min = 1, max = 20): string {
   return String(Math.floor(Math.random() * (max - min + 1)) + min);
 }
 
-export function createArrayBlock(length: number, initialValues?: string[]): ArrayBlock {
+export function createArrayBlock(
+  length: number,
+  initialValues?: string[],
+  initialPointers?: ArrayPointer[],
+): ArrayBlock {
   const n = Math.min(32, Math.max(1, Math.floor(length)));
   const values = initialValues && initialValues.length === n
     ? [...initialValues]
@@ -180,7 +184,83 @@ export function createArrayBlock(length: number, initialValues?: string[]): Arra
     id: uid(),
     type: 'array',
     values,
+    pointers: initialPointers ? [...initialPointers] : [],
   };
+}
+
+export function addArrayPointer(
+  blockId: BlockId,
+  name: string,
+  index = 0,
+  color?: ArrayPointer['color'],
+) {
+  const b = doc.blocks.find((blk) => blk.id === blockId && blk.type === 'array') as (PlacedBlock & { type: 'array' }) | undefined;
+  if (!b) return;
+  if (!b.pointers) b.pointers = [];
+  const palette: ArrayPointer['color'][] = ['purple', 'cyan', 'rose', 'emerald', 'amber'];
+  const assignedColor = color ?? palette[b.pointers.length % palette.length];
+  pushUndoPoint();
+  b.pointers.push({
+    id: uid(),
+    name: name.trim() || 'p',
+    index: Math.max(0, Math.min(b.values.length - 1, index)),
+    color: assignedColor,
+  });
+}
+
+export function moveArrayPointer(
+  blockId: BlockId,
+  pointerId: string,
+  deltaOrIndex: number,
+  isAbsolute = false,
+) {
+  const b = doc.blocks.find((blk) => blk.id === blockId && blk.type === 'array') as (PlacedBlock & { type: 'array' }) | undefined;
+  if (!b || !b.pointers) return;
+  const ptr = b.pointers.find((p) => p.id === pointerId);
+  if (!ptr) return;
+  const maxIdx = b.values.length - 1;
+  const nextIdx = isAbsolute ? deltaOrIndex : ptr.index + deltaOrIndex;
+  const clamped = Math.max(0, Math.min(maxIdx, nextIdx));
+  if (clamped !== ptr.index) {
+    ptr.index = clamped;
+  }
+}
+
+export function removeArrayPointer(blockId: BlockId, pointerId: string) {
+  const b = doc.blocks.find((blk) => blk.id === blockId && blk.type === 'array') as (PlacedBlock & { type: 'array' }) | undefined;
+  if (!b || !b.pointers) return;
+  pushUndoPoint();
+  b.pointers = b.pointers.filter((p) => p.id !== pointerId);
+}
+
+export function setArrayPointerPreset(
+  blockId: BlockId,
+  preset: 'two_pointer' | 'slow_fast' | 'ij' | 'clear',
+) {
+  const b = doc.blocks.find((blk) => blk.id === blockId && blk.type === 'array') as (PlacedBlock & { type: 'array' }) | undefined;
+  if (!b) return;
+  pushUndoPoint();
+  if (preset === 'clear') {
+    b.pointers = [];
+    return;
+  }
+  const maxIdx = Math.max(0, b.values.length - 1);
+  if (preset === 'two_pointer') {
+    b.pointers = [
+      { id: uid(), name: 'L', index: 0, color: 'cyan' },
+      { id: uid(), name: 'R', index: maxIdx, color: 'rose' },
+    ];
+  } else if (preset === 'slow_fast') {
+    b.pointers = [
+      { id: uid(), name: 'slow', index: 0, color: 'emerald' },
+      { id: uid(), name: 'fast', index: 0, color: 'cyan' },
+    ];
+  } else if (preset === 'ij') {
+    b.pointers = [
+      { id: uid(), name: 'i', index: 0, color: 'purple' },
+      { id: uid(), name: 'j', index: Math.min(1, maxIdx), color: 'amber' },
+    ];
+  }
 }
 
 export function createMatrixBlock(rows: number, cols: number, initialRows?: string[][]): MatrixBlock {

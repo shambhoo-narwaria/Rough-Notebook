@@ -230,15 +230,24 @@ export function generateDiagramSvg(mode: ThemeMode = 'light'): string {
     } else if (b.type === 'array') {
       const cellW = 42;
       const cellH = 38;
+      const hasPtrs = Boolean(b.pointers && b.pointers.length > 0);
+      const ptrOffset = hasPtrs ? 16 : 0;
       bodySvg += `<g transform="translate(${bx}, ${by})">`;
+      if (hasPtrs) {
+        b.pointers?.forEach((p) => {
+          const cx = p.index * cellW + cellW / 2;
+          const ptrColor = p.color === 'rose' ? '#e11d48' : p.color === 'purple' ? '#9333ea' : p.color === 'emerald' ? '#059669' : p.color === 'amber' ? '#d97706' : '#0891b2';
+          bodySvg += `<text x="${cx}" y="10" font-size="10" font-weight="700" text-anchor="middle" font-family="ui-monospace, monospace" fill="${ptrColor}">${escapeXml(p.name)} ↓</text>`;
+        });
+      }
       b.values.forEach((val, i) => {
         const cx = i * cellW;
         // Index tag above cell
-        bodySvg += `<text x="${cx + cellW / 2}" y="12" font-size="10" font-weight="600" text-anchor="middle" font-family="ui-monospace, monospace" fill="${pal.idxText}">[${i}]</text>`;
+        bodySvg += `<text x="${cx + cellW / 2}" y="${ptrOffset + 12}" font-size="10" font-weight="600" text-anchor="middle" font-family="ui-monospace, monospace" fill="${pal.idxText}">[${i}]</text>`;
         // Cell box
-        bodySvg += `<rect x="${cx}" y="18" width="${cellW}" height="${cellH}" rx="3" fill="${pal.cardBg}" stroke="${pal.border}" stroke-width="1.2"/>`;
+        bodySvg += `<rect x="${cx}" y="${ptrOffset + 18}" width="${cellW}" height="${cellH}" rx="3" fill="${pal.cardBg}" stroke="${pal.border}" stroke-width="1.2"/>`;
         // Value text
-        bodySvg += `<text x="${cx + cellW / 2}" y="42" font-size="13" font-weight="500" text-anchor="middle" font-family="ui-monospace, monospace" fill="${pal.text}">${escapeXml(val ?? '')}</text>`;
+        bodySvg += `<text x="${cx + cellW / 2}" y="${ptrOffset + 42}" font-size="13" font-weight="500" text-anchor="middle" font-family="ui-monospace, monospace" fill="${pal.text}">${escapeXml(val ?? '')}</text>`;
       });
       bodySvg += `</g>\n`;
     } else if (b.type === 'matrix') {
