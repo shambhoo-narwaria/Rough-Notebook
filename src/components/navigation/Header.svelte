@@ -4,6 +4,11 @@
   import type { PenColorKey } from '@/library/handwriting/penColor';
   import type { NotebookPage } from '@/library/state/notebookPages.svelte';
   import type { ThemeMode } from '@/library/theme/theme';
+  import {
+    copyDiagramToClipboard,
+    downloadDiagramPng,
+    downloadDiagramSvg,
+  } from '@/library/export/exportCanvas';
 
   type Props = {
     penActive: boolean;
@@ -87,6 +92,74 @@
     function onDocClick(e: MouseEvent) {
       if (breadcrumbEl && !breadcrumbEl.contains(e.target as Node)) {
         dropdownOpen = false;
+      }
+    }
+    document.addEventListener('pointerdown', onDocClick, true);
+    return () => document.removeEventListener('pointerdown', onDocClick, true);
+  });
+
+  let exportDropdownOpen = $state(false);
+  let exportMenuEl: HTMLDivElement | null = $state(null);
+  let toastMessage = $state<string | null>(null);
+  let toastTimer: ReturnType<typeof setTimeout> | null = null;
+  let isExporting = $state(false);
+
+  function showToast(msg: string) {
+    toastMessage = msg;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastMessage = null;
+      toastTimer = null;
+    }, 2400);
+  }
+
+  async function handleCopyPng() {
+    exportDropdownOpen = false;
+    isExporting = true;
+    try {
+      const ok = await copyDiagramToClipboard(themeMode);
+      if (ok) {
+        showToast('Diagram copied to clipboard! Ready to paste.');
+      } else {
+        showToast('Downloading PNG instead.');
+        await downloadDiagramPng(themeMode, `${activeTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}.png`);
+      }
+    } catch {
+      showToast('Downloading PNG instead.');
+      await downloadDiagramPng(themeMode, `${activeTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}.png`);
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  async function handleDownloadPng() {
+    exportDropdownOpen = false;
+    isExporting = true;
+    try {
+      await downloadDiagramPng(themeMode, `${activeTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}.png`);
+      showToast('PNG image downloaded!');
+    } catch {
+      showToast('Failed to download PNG.');
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  function handleDownloadSvg() {
+    exportDropdownOpen = false;
+    try {
+      downloadDiagramSvg(themeMode, `${activeTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}.svg`);
+      showToast('SVG vector downloaded!');
+    } catch {
+      showToast('Failed to download SVG.');
+    }
+  }
+
+  $effect(() => {
+    if (!exportDropdownOpen) return;
+    function onDocClick(e: MouseEvent) {
+      if (exportMenuEl && !exportMenuEl.contains(e.target as Node)) {
+        exportDropdownOpen = false;
       }
     }
     document.addEventListener('pointerdown', onDocClick, true);
@@ -313,6 +386,97 @@
       <span class="clear-text">Clear</span>
     </button>
 
+    <!-- Export Menu -->
+    <div class="export-menu-wrap" bind:this={exportMenuEl}>
+      <button
+        type="button"
+        class="action-btn export-btn"
+        class:is-active={exportDropdownOpen}
+        onclick={() => (exportDropdownOpen = !exportDropdownOpen)}
+        title="Export or copy diagram"
+        aria-label="Export or share diagram"
+        aria-expanded={exportDropdownOpen}
+      >
+        {#if isExporting}
+          <div class="export-spinner" aria-hidden="true"></div>
+        {:else}
+          <svg class="export-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+        {/if}
+        <span class="export-text">Export</span>
+        <svg class="dropdown-chevron" viewBox="0 0 20 20" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 8 10 12 14 8" />
+        </svg>
+      </button>
+
+      {#if exportDropdownOpen}
+        <div class="export-dropdown" role="menu">
+          <div class="export-dropdown-header">
+            <span class="export-dropdown-title">Export & Share</span>
+            <span class="export-sheet-badge">{activeTitle}</span>
+          </div>
+
+          <div class="export-dropdown-section">
+            <button
+              type="button"
+              class="export-item-btn highlight-item"
+              onclick={handleCopyPng}
+            >
+              <div class="item-icon-box">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </div>
+              <div class="item-content">
+                <span class="item-label">Copy as Image</span>
+                <span class="item-sub">Paste to LeetCode, Notion, Discord</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="export-item-btn"
+              onclick={handleDownloadPng}
+            >
+              <div class="item-icon-box">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="item-content">
+                <span class="item-label">Download PNG</span>
+                <span class="item-sub">Crisp 2x Retina raster image</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="export-item-btn"
+              onclick={handleDownloadSvg}
+            >
+              <div class="item-icon-box">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                  <polyline points="2 17 12 22 22 17"/>
+                  <polyline points="2 12 12 17 22 12"/>
+                </svg>
+              </div>
+              <div class="item-content">
+                <span class="item-label">Download SVG</span>
+                <span class="item-sub">Infinite resolution vector file</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      {/if}
+    </div>
+
     <div class="divider-v" aria-hidden="true"></div>
 
     <button
@@ -361,6 +525,15 @@
       </svg>
     </button>
   </div>
+
+  {#if toastMessage}
+    <div class="toast-banner" role="status">
+      <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 10 8 14 16 5" />
+      </svg>
+      <span>{toastMessage}</span>
+    </div>
+  {/if}
 </header>
 
 <style>
@@ -952,6 +1125,217 @@
 
   .danger-btn:hover .clear-icon {
     transform: scale(1.08);
+  }
+
+  /* ── Export Menu ────────────────────────────────────────────────────── */
+  .export-menu-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .export-btn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    gap: 5px;
+  }
+
+  .export-icon {
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .export-text {
+    color: var(--text-h);
+    transition: color 0.15s ease;
+  }
+
+  .export-btn:hover,
+  .export-btn.is-active {
+    background: var(--surface-2);
+    border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border));
+    box-shadow: 0 2px 8px var(--accent-primary-glow);
+  }
+
+  .export-btn:hover .export-icon,
+  .export-btn:hover .export-text,
+  .export-btn.is-active .export-icon,
+  .export-btn.is-active .export-text {
+    color: var(--accent-primary);
+  }
+
+  .export-spinner {
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .export-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 250px;
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    z-index: 300;
+    padding: 6px;
+    animation: dropdownPop 0.14s ease-out;
+  }
+
+  @keyframes dropdownPop {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .export-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .export-dropdown-title {
+    font: 700 11px var(--sans);
+    color: var(--text-h);
+    letter-spacing: -0.01em;
+  }
+
+  .export-sheet-badge {
+    font: 600 10px var(--mono);
+    color: var(--accent-primary);
+    background: color-mix(in srgb, var(--accent-primary) 12%, var(--surface-2));
+    padding: 2px 6px;
+    border-radius: 4px;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .export-dropdown-section {
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .export-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 6px 8px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.12s ease;
+  }
+
+  .export-item-btn:hover {
+    background: var(--surface-2);
+  }
+
+  .export-item-btn.highlight-item {
+    background: color-mix(in srgb, var(--accent-primary) 6%, transparent);
+  }
+
+  .export-item-btn.highlight-item:hover {
+    background: color-mix(in srgb, var(--accent-primary) 12%, var(--surface-2));
+  }
+
+  .item-icon-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--text-h) 6%, transparent);
+    color: var(--text-h);
+    flex-shrink: 0;
+  }
+
+  .highlight-item .item-icon-box {
+    background: color-mix(in srgb, var(--accent-primary) 16%, transparent);
+    color: var(--accent-primary);
+  }
+
+  .item-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .item-label {
+    font: 600 12px/1.2 var(--sans);
+    color: var(--text-h);
+  }
+
+  .item-sub {
+    font: 400 10px/1.2 var(--sans);
+    color: var(--muted);
+  }
+
+  /* ── Toast Notification Banner ───────────────────────────────────────── */
+  .toast-banner {
+    position: fixed;
+    top: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    font: 600 12px var(--sans);
+    color: var(--text-h);
+    animation: toastFloat 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+
+  .toast-banner svg {
+    color: #10B981;
+    flex-shrink: 0;
+  }
+
+  @keyframes toastFloat {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 
   .icon-btn {
