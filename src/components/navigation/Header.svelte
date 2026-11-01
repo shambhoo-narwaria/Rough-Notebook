@@ -1257,6 +1257,10 @@
     color: var(--accent-primary);
   }
 
+  .export-btn:hover .export-icon {
+    transform: scale(1.08);
+  }
+
   .export-spinner {
     width: 11px;
     height: 11px;
@@ -1275,6 +1279,7 @@
     top: calc(100% + 6px);
     right: 0;
     width: 250px;
+    max-width: calc(100vw - 24px);
     background: color-mix(in srgb, var(--surface) 96%, transparent);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -1467,11 +1472,14 @@
 
   @media (max-width: 760px) {
     .insert-text,
-    .clear-text {
+    .clear-text,
+    .export-text,
+    .export-btn .dropdown-chevron {
       display: none;
     }
     .insert-btn,
-    .danger-btn {
+    .danger-btn,
+    .export-btn {
       width: 28px;
       height: 28px;
       padding: 0;
@@ -1482,11 +1490,14 @@
 
   @container topbar (max-width: 760px) {
     .insert-text,
-    .clear-text {
-      display: none;
+    .clear-text,
+    .export-text,
+    .export-btn .dropdown-chevron {
+      display: none !important;
     }
     .insert-btn,
-    .danger-btn {
+    .danger-btn,
+    .export-btn {
       width: 28px;
       height: 28px;
       padding: 0;
