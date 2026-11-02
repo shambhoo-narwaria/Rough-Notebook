@@ -338,6 +338,10 @@
   function placedRootInteractions(node: HTMLElement, blockId: string) {
     const onCtx = (e: MouseEvent) => {
       if (penActive && !autoHandwritingActive.value) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest(".ptr-badge") || t?.closest(".ptr-context-menu") || t?.closest(".pointer-menu-wrap")) {
+        return;
+      }
       const b = doc.blocks.find((x) => x.id === blockId);
       if (!b) return;
       e.preventDefault();
@@ -1965,7 +1969,7 @@
   }
 
   .placed:focus-within,
-  .placed:has(.menu-open) {
+  .placed:has(:global(.menu-open)) {
     z-index: 45;
   }
 

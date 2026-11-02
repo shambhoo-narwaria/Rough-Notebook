@@ -25,6 +25,9 @@
   let editingPointerId = $state<string | null>(null);
   let editPointerName = $state('');
   let isHovered = $state(false);
+  let activeContextMenuPointerId = $state<string | null>(null);
+  let activeContextMenuEl = $state<HTMLDivElement | null>(null);
+  let contextMenuPos = $state<{ x: number; y: number } | null>(null);
 
   $effect(() => {
     registerBlockRoot(block.id, root);
@@ -35,10 +38,13 @@
     if (pointerMenuOpen && pointerMenuEl && !pointerMenuEl.contains(e.target as Node)) {
       pointerMenuOpen = false;
     }
+    if (activeContextMenuPointerId && activeContextMenuEl && !activeContextMenuEl.contains(e.target as Node)) {
+      activeContextMenuPointerId = null;
+    }
   }
 
   $effect(() => {
-    if (pointerMenuOpen) {
+    if (pointerMenuOpen || activeContextMenuPointerId) {
       window.addEventListener('mousedown', handleDocumentClick);
       return () => window.removeEventListener('mousedown', handleDocumentClick);
     }
@@ -46,6 +52,17 @@
 
   const selected = $derived(doc.selectedBlockId === block.id);
   const pointers = $derived(block.pointers ?? []);
+  const activeContextMenuPointer = $derived(
+    pointers.find((p) => p.id === activeContextMenuPointerId) ?? null
+  );
+
+  const pointerColors: NonNullable<ArrayPointer['color']>[] = [
+    'cyan',
+    'rose',
+    'purple',
+    'emerald',
+    'amber',
+  ];
 
   // Compute sliding window range if multiple pointers exist
   const windowRange = $derived.by(() => {
@@ -56,8 +73,69 @@
       if (p.index < minIdx) minIdx = p.index;
       if (p.index > maxIdx) maxIdx = p.index;
     }
-    if (minIdx === Infinity || maxIdx === -Infinity || minIdx === maxIdx) return null;
+    if (minIdx === Infinity || maxIdx === -Infinity) return null;
     return { min: minIdx, max: maxIdx };
+  });
+
+  const windowStats = $derived.by(() => {
+    if (!windowRange) return null;
+    const { min, max } = windowRange;
+    const slice = block.values.slice(min, max + 1);
+    const len = max - min + 1;
+
+    // Boundary pointers
+    const leftPointers = pointers.filter((p) => p.index === min);
+    const rightPointers = pointers.filter((p) => p.index === max);
+
+    // Numeric parsing and stats
+    const parsedNums: (number | null)[] = slice.map((v) => {
+      const s = String(v ?? '').trim();
+      if (s === '') return null;
+      const num = Number(s);
+      return Number.isNaN(num) ? null : num;
+    });
+
+    const isAllNumeric = parsedNums.length > 0 && parsedNums.every((n): n is number => n !== null);
+
+    let sum: number | null = null;
+    let minVal: number | null = null;
+    let maxVal: number | null = null;
+    let avg: number | null = null;
+
+    if (isAllNumeric) {
+      const nums = parsedNums as number[];
+      sum = nums.reduce((acc, n) => acc + n, 0);
+      minVal = Math.min(...nums);
+      maxVal = Math.max(...nums);
+      const rawAvg = sum / len;
+      avg = Number.isInteger(rawAvg) ? rawAvg : Math.round(rawAvg * 10) / 10;
+    }
+
+    // String / character preview
+    const isSingleCharStrings = slice.length > 0 && slice.every((v) => String(v ?? '').length <= 1);
+    const formedString = slice.join('');
+
+    // Distinct & duplicate check
+    const uniqueSet = new Set(slice.map((v) => String(v ?? '').trim()));
+    const distinctCount = uniqueSet.size;
+    const hasDuplicates = distinctCount < len;
+
+    return {
+      min,
+      max,
+      len,
+      leftPointers,
+      rightPointers,
+      isAllNumeric,
+      sum,
+      minVal,
+      maxVal,
+      avg,
+      isSingleCharStrings,
+      formedString,
+      distinctCount,
+      hasDuplicates,
+    };
   });
 
   function isCellInWindow(i: number): boolean {
@@ -130,13 +208,29 @@
         selectedPointerId = null;
         return;
       }
+      if (e.key === 'F2') {
+        e.preventDefault();
+        e.stopPropagation();
+        const ptr = block.pointers?.find((pt) => pt.id === selectedPointerId);
+        if (ptr) {
+          editingPointerId = ptr.id;
+          editPointerName = ptr.name;
+        }
+        return;
+      }
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopPropagation();
         selectedPointerId = null;
         pointerMenuOpen = false;
+        activeContextMenuPointerId = null;
         return;
       }
+    }
+
+    if (activeContextMenuPointerId && e.key === 'Escape') {
+      activeContextMenuPointerId = null;
+      return;
     }
 
     if (e.target !== e.currentTarget) return;
@@ -165,10 +259,78 @@
     removeArrayPointer(block.id, p.id);
   }
 
-  function startRenamePointer(p: ArrayPointer, e: MouseEvent) {
-    e.stopPropagation();
+  function startRenamePointer(p: ArrayPointer, e?: MouseEvent) {
+    e?.stopPropagation();
     editingPointerId = p.id;
     editPointerName = p.name;
+  }
+
+  function handlePointerContextMenu(p: ArrayPointer, e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    selectedPointerId = p.id;
+    activeContextMenuPointerId = p.id;
+
+    if (root) {
+      const rect = root.getBoundingClientRect();
+      const x = e.clientX ? e.clientX - rect.left : 20;
+      const y = e.clientY ? e.clientY - rect.top : 20;
+      const maxX = Math.max(0, rect.width - 180);
+      contextMenuPos = {
+        x: Math.max(4, Math.min(maxX, x)),
+        y: Math.max(4, y),
+      };
+    } else {
+      contextMenuPos = { x: 20, y: 20 };
+    }
+  }
+
+  function handleContextMenuRename(p: ArrayPointer, e: MouseEvent) {
+    e.stopPropagation();
+    activeContextMenuPointerId = null;
+    startRenamePointer(p, e);
+  }
+
+  function handleContextMenuColor(p: ArrayPointer, color: NonNullable<ArrayPointer['color']>, e: MouseEvent) {
+    e.stopPropagation();
+    pushUndoPoint();
+    p.color = color;
+    activeContextMenuPointerId = null;
+  }
+
+  function handleContextMenuDelete(p: ArrayPointer, e: MouseEvent) {
+    e.stopPropagation();
+    activeContextMenuPointerId = null;
+    handleDeletePointer(p, e);
+  }
+
+  let copyFeedback = $state(false);
+
+  function handleShiftWindow(dir: -1 | 1, e: MouseEvent) {
+    e.stopPropagation();
+    if (!windowRange || !pointers || pointers.length < 2) return;
+    if (dir === -1 && windowRange.min <= 0) return;
+    if (dir === 1 && windowRange.max >= block.values.length - 1) return;
+    pushUndoPoint();
+    for (const p of pointers) {
+      moveArrayPointer(block.id, p.id, dir);
+    }
+  }
+
+  function handleCopyWindowSlice(e: MouseEvent) {
+    e.stopPropagation();
+    if (!windowRange) return;
+    const slice = block.values.slice(windowRange.min, windowRange.max + 1);
+    navigator.clipboard?.writeText(JSON.stringify(slice));
+    copyFeedback = true;
+    setTimeout(() => {
+      copyFeedback = false;
+    }, 1400);
+  }
+
+  function selectOnMount(el: HTMLInputElement) {
+    el.focus();
+    el.select();
   }
 
   function finishRenamePointer(p: ArrayPointer) {
@@ -215,7 +377,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="wrap"
-  class:menu-open={pointerMenuOpen}
+  class:menu-open={pointerMenuOpen || activeContextMenuPointerId !== null}
   bind:this={root}
   tabindex="0"
   role="application"
@@ -394,8 +556,9 @@
                 class:is-active-pointer={isSelectedPtr}
                 role="button"
                 tabindex="0"
-                title={`Pointer ${p.name} at index ${p.index}. Click to select, [ or ] to step.`}
+                title={`Pointer ${p.name} at index ${p.index}. Right-click for options (rename, color, delete).`}
                 onclick={(e) => handleSelectPointer(p, e)}
+                oncontextmenu={(e) => handlePointerContextMenu(p, e)}
                 onkeydown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     handleSelectPointer(p, e as unknown as MouseEvent);
@@ -405,18 +568,21 @@
                 <!-- Step Left -->
                 <button
                   type="button"
-                  class="ptr-step-btn"
-                  title="Step pointer left"
-                  aria-label="Step left"
+                  class="ptr-step-btn ptr-step-left"
+                  title="Step pointer left (Key: [ or ←)"
+                  aria-label="Step pointer left"
                   onclick={(e) => handleStepPointer(p, -1, e)}
                   disabled={p.index <= 0}
                 >
-                  ‹
+                  <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13L5 8l5-5" />
+                  </svg>
                 </button>
 
                 <!-- Name Label / Inline Editor -->
                 {#if editingPointerId === p.id}
                   <input
+                    use:selectOnMount
                     class="ptr-edit-input"
                     type="text"
                     bind:value={editPointerName}
@@ -428,11 +594,12 @@
                         finishRenamePointer(p);
                       }
                     }}
-                    autofocus
                   />
                 {:else}
+                  <!-- svelte-ignore a11y_no_static_element_interactions -->
                   <span
                     class="ptr-label"
+                    title="Double-click or right-click to rename"
                     ondblclick={(e) => startRenamePointer(p, e)}
                   >
                     {p.name}
@@ -442,24 +609,15 @@
                 <!-- Step Right -->
                 <button
                   type="button"
-                  class="ptr-step-btn"
-                  title="Step pointer right"
-                  aria-label="Step right"
+                  class="ptr-step-btn ptr-step-right"
+                  title="Step pointer right (Key: ] or →)"
+                  aria-label="Step pointer right"
                   onclick={(e) => handleStepPointer(p, 1, e)}
                   disabled={p.index >= block.values.length - 1}
                 >
-                  ›
-                </button>
-
-                <!-- Delete X -->
-                <button
-                  type="button"
-                  class="ptr-del-btn"
-                  title="Remove pointer"
-                  aria-label="Remove pointer"
-                  onclick={(e) => handleDeletePointer(p, e)}
-                >
-                  ×
+                  <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 3l5 5-5 5" />
+                  </svg>
                 </button>
 
                 <!-- Downward pointer arrow indicator -->
@@ -533,14 +691,201 @@
       </div>
     </div>
 
-    <!-- Sliding Window Underline Bracket (when active) -->
-    {#if windowRange}
-      <div class="window-caption">
-        <span class="window-tag">Window: [{windowRange.min}..{windowRange.max}]</span>
-        <span class="window-len">len = {windowRange.max - windowRange.min + 1}</span>
+    <!-- Sliding Window Chip Bar (Option A) -->
+    {#if windowRange && windowStats}
+      <div class="window-bar" role="region" aria-label="Sliding window information">
+        <!-- Quick Window Shifter (Slide Entire Window) -->
+        <div class="window-nav-group" title="Slide window (moves all pointers in lockstep)">
+          <button
+            type="button"
+            class="window-nav-btn"
+            title="Slide window left"
+            aria-label="Slide window left"
+            disabled={windowStats.min <= 0}
+            onclick={(e) => handleShiftWindow(-1, e)}
+          >
+            <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13L5 8l5-5" />
+            </svg>
+          </button>
+          <span class="window-nav-divider"></span>
+          <button
+            type="button"
+            class="window-nav-btn"
+            title="Slide window right"
+            aria-label="Slide window right"
+            disabled={windowStats.max >= block.values.length - 1}
+            onclick={(e) => handleShiftWindow(1, e)}
+          >
+            <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3l5 5-5 5" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Window Range & Bound Pointers Chip -->
+        <div class="window-chip window-chip-range">
+          <span class="chip-label">Window</span>
+          <span class="chip-val">
+            {#if windowStats.leftPointers.length > 0}
+              <span class="chip-ptrs">
+                {#each windowStats.leftPointers as lp (lp.id)}
+                  <span class="chip-ptr-tag ptr-tag-{lp.color ?? 'cyan'}">{lp.name}</span>
+                {/each}
+              </span>
+            {/if}
+            <span class="range-bounds">[{windowStats.min}..{windowStats.max}]</span>
+            {#if windowStats.rightPointers.length > 0 && windowStats.min !== windowStats.max}
+              <span class="chip-ptrs">
+                {#each windowStats.rightPointers as rp (rp.id)}
+                  <span class="chip-ptr-tag ptr-tag-{rp.color ?? 'rose'}">{rp.name}</span>
+                {/each}
+              </span>
+            {/if}
+          </span>
+        </div>
+
+        <!-- Length Chip -->
+        <div class="window-chip window-chip-len" title="Window length (element count)">
+          <span class="chip-label">len</span>
+          <span class="chip-val chip-num">{windowStats.len}</span>
+        </div>
+
+        <!-- Numeric Statistics (if array values are numbers) -->
+        {#if windowStats.isAllNumeric && windowStats.sum !== null}
+          <div class="window-chip window-chip-sum" title="Sum of elements inside window">
+            <span class="chip-label">∑ sum</span>
+            <span class="chip-val chip-accent">{windowStats.sum}</span>
+          </div>
+
+          {#if windowStats.len > 1}
+            <div class="window-chip window-chip-avg" title="Average of elements inside window">
+              <span class="chip-label">μ avg</span>
+              <span class="chip-val">{windowStats.avg}</span>
+            </div>
+
+            <div class="window-chip window-chip-minmax" title="Minimum and Maximum values in window">
+              <span class="chip-label">min / max</span>
+              <span class="chip-val">{windowStats.minVal} / {windowStats.maxVal}</span>
+            </div>
+          {/if}
+        {:else if windowStats.isSingleCharStrings && windowStats.formedString}
+          <!-- Formed String preview (if characters) -->
+          <div class="window-chip window-chip-str" title="Formed substring">
+            <span class="chip-label">str</span>
+            <span class="chip-val chip-quote">"{windowStats.formedString}"</span>
+          </div>
+        {/if}
+
+        <!-- Distinct / Uniqueness Chip -->
+        <div
+          class="window-chip window-chip-distinct"
+          title={windowStats.hasDuplicates ? `Window has duplicate elements (${windowStats.distinctCount} distinct)` : `All ${windowStats.len} elements in window are distinct`}
+        >
+          <span class="chip-label">distinct</span>
+          <span class="chip-val" class:chip-good={!windowStats.hasDuplicates} class:chip-warn={windowStats.hasDuplicates}>
+            {windowStats.distinctCount}
+            {#if !windowStats.hasDuplicates}
+              <span class="unique-badge">✓ unique</span>
+            {:else}
+              <span class="dup-badge">dups</span>
+            {/if}
+          </span>
+        </div>
+
+        <!-- Copy Window Elements Slice -->
+        <button
+          type="button"
+          class="window-copy-btn"
+          class:copied={copyFeedback}
+          title="Copy window subarray elements to clipboard as JSON"
+          aria-label="Copy window elements"
+          onclick={handleCopyWindowSlice}
+        >
+          {#if copyFeedback}
+            <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 8.5 6.5 12 13 4" />
+            </svg>
+            <span>Copied!</span>
+          {:else}
+            <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="5" width="8" height="8" rx="1.5" />
+              <path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" />
+            </svg>
+            <span>Slice</span>
+          {/if}
+        </button>
       </div>
     {/if}
   </div>
+
+  <!-- Pointer Context Menu (Right Click) -->
+  {#if activeContextMenuPointer && contextMenuPos}
+    <div
+      class="ptr-context-menu"
+      bind:this={activeContextMenuEl}
+      style="left: {contextMenuPos.x}px; top: {contextMenuPos.y}px;"
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+      role="menu"
+      tabindex="-1"
+    >
+      <div class="ctx-header">
+        <span class="ctx-title">Pointer: {activeContextMenuPointer.name}</span>
+      </div>
+
+      <!-- Rename Option -->
+      <button
+        type="button"
+        class="ctx-item-btn"
+        onclick={(e) => handleContextMenuRename(activeContextMenuPointer, e)}
+      >
+        <svg class="ctx-icon" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11.5 2.5a1.414 1.414 0 0 1 2 2L4.5 13.5l-3 1 1-3 9-9z"/>
+        </svg>
+        <span class="ctx-item-label">Rename</span>
+        <span class="ctx-shortcut">F2</span>
+      </button>
+
+      <!-- Color Swatches Row -->
+      <div class="ctx-colors-row">
+        <span class="ctx-colors-label">Color</span>
+        <div class="ctx-swatches">
+          {#each pointerColors as col}
+            <button
+              type="button"
+              class="ctx-color-dot dot-{col}"
+              class:is-active={activeContextMenuPointer.color === col}
+              title={col}
+              aria-label={col}
+              onclick={(e) => handleContextMenuColor(activeContextMenuPointer, col, e)}
+            >
+              {#if activeContextMenuPointer.color === col}
+                <svg viewBox="0 0 16 16" width="8" height="8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 8 7 12 13 4"/>
+                </svg>
+              {/if}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <div class="ctx-divider"></div>
+
+      <!-- Delete Option -->
+      <button
+        type="button"
+        class="ctx-item-btn is-danger"
+        onclick={(e) => handleContextMenuDelete(activeContextMenuPointer, e)}
+      >
+        <svg class="ctx-icon" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 4h12M5.5 4V2.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4M12.5 4v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5V4"/>
+        </svg>
+        <span class="ctx-item-label">Delete Pointer</span>
+        <span class="ctx-shortcut">Del</span>
+      </button>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -833,7 +1178,7 @@
   }
 
   .pointer-track-spacer {
-    min-height: 26px;
+    min-height: 30px;
     margin-bottom: 2px;
   }
 
@@ -882,12 +1227,12 @@
 
   /* ── Pointer Badges & Track ─────────────────────────────────────────────── */
   .pointer-track {
-    min-height: 26px;
+    min-height: 30px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 6px;
     width: 100%;
     margin-bottom: 2px;
   }
@@ -897,16 +1242,18 @@
     display: inline-flex;
     align-items: center;
     gap: 1px;
-    height: 20px;
-    padding: 0 2px;
-    border-radius: 5px;
-    font: 700 10.5px var(--mono);
+    height: 24px;
+    padding: 1px 2px;
+    border-radius: 6px;
+    font: 700 11px var(--mono);
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
     animation: ptrPopIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 20;
     user-select: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   @keyframes ptrPopIn {
@@ -921,13 +1268,13 @@
   }
 
   .ptr-badge:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .ptr-badge.is-active-pointer {
     transform: translateY(-2px);
-    box-shadow: 0 0 0 2px var(--accent-primary-glow), 0 4px 12px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px currentColor, 0 6px 14px rgba(0, 0, 0, 0.2);
   }
 
   /* Color themes for pointer badges */
@@ -962,95 +1309,238 @@
   }
 
   /* Dark mode overrides for high-contrast clarity */
-  :global(.dark) .ptr-cyan, :global([data-theme="dark"]) .ptr-cyan { color: #22d3ee; }
-  :global(.dark) .ptr-rose, :global([data-theme="dark"]) .ptr-rose { color: #fb7185; }
-  :global(.dark) .ptr-purple, :global([data-theme="dark"]) .ptr-purple { color: #c084fc; }
-  :global(.dark) .ptr-emerald, :global([data-theme="dark"]) .ptr-emerald { color: #34d399; }
-  :global(.dark) .ptr-amber, :global([data-theme="dark"]) .ptr-amber { color: #fbbf24; }
+  :global(.dark) .ptr-cyan, :global([data-theme="dark"]) .ptr-cyan { color: #22d3ee; border-color: rgba(34, 211, 238, 0.6); }
+  :global(.dark) .ptr-rose, :global([data-theme="dark"]) .ptr-rose { color: #fb7185; border-color: rgba(251, 113, 133, 0.6); }
+  :global(.dark) .ptr-purple, :global([data-theme="dark"]) .ptr-purple { color: #c084fc; border-color: rgba(192, 132, 252, 0.6); }
+  :global(.dark) .ptr-emerald, :global([data-theme="dark"]) .ptr-emerald { color: #34d399; border-color: rgba(52, 211, 153, 0.6); }
+  :global(.dark) .ptr-amber, :global([data-theme="dark"]) .ptr-amber { color: #fbbf24; border-color: rgba(251, 191, 36, 0.6); }
 
   .ptr-step-btn {
     border: none;
-    background: transparent;
+    background: color-mix(in srgb, currentColor 8%, transparent);
     color: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    width: 12px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
     cursor: pointer;
-    border-radius: 3px;
-    opacity: 0.7;
-    transition: all 0.1s ease;
+    border-radius: 4px;
+    opacity: 0.85;
+    transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s ease, box-shadow 0.12s ease;
+  }
+
+  .ptr-step-btn svg {
+    display: block;
+    pointer-events: none;
+    flex-shrink: 0;
   }
 
   .ptr-step-btn:hover:not(:disabled) {
     opacity: 1;
-    background: color-mix(in srgb, currentColor 18%, transparent);
+    background: color-mix(in srgb, currentColor 22%, transparent);
+  }
+
+  .ptr-step-left:hover:not(:disabled) {
+    transform: translateX(-1px);
+  }
+
+  .ptr-step-right:hover:not(:disabled) {
+    transform: translateX(1px);
+  }
+
+  .ptr-step-btn:active:not(:disabled) {
+    transform: scale(0.88);
+    background: color-mix(in srgb, currentColor 32%, transparent);
   }
 
   .ptr-step-btn:disabled {
-    opacity: 0.25;
+    opacity: 0.18;
     cursor: not-allowed;
+    background: transparent;
   }
 
-  .ptr-del-btn {
+  /* Pointer Right-Click Context Menu */
+  .ptr-context-menu {
+    position: absolute;
+    width: 175px;
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25), 0 4px 14px rgba(0, 0, 0, 0.15);
+    z-index: 600;
+    padding: 6px;
+    animation: ptrCtxPop 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes ptrCtxPop {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .ctx-header {
+    padding: 4px 6px 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  .ctx-title {
+    font: 700 10.5px var(--sans);
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .ctx-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 5px 8px;
     border: none;
+    border-radius: 5px;
     background: transparent;
-    color: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    width: 12px;
-    height: 16px;
+    color: var(--text-h);
+    font: 600 12px var(--sans);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.1s ease;
+  }
+
+  .ctx-item-btn:hover {
+    background: var(--surface-2);
+    color: var(--text-h);
+  }
+
+  .ctx-item-btn.is-danger {
+    color: #ef4444;
+  }
+
+  .ctx-item-btn.is-danger:hover {
+    background: color-mix(in srgb, #ef4444 14%, var(--surface-2));
+    color: #ef4444;
+  }
+
+  .ctx-icon {
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+
+  .ctx-item-label {
+    flex: 1;
+  }
+
+  .ctx-shortcut {
+    font: 600 10px var(--mono);
+    color: var(--muted);
+    padding: 1px 4px;
+    background: color-mix(in srgb, var(--surface-3) 70%, transparent);
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .ctx-colors-row {
+    padding: 6px 8px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .ctx-colors-label {
+    font: 600 10.5px var(--sans);
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  .ctx-swatches {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ctx-color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    cursor: pointer;
-    border-radius: 3px;
-    opacity: 0.5;
-    transition: all 0.1s ease;
-    margin-left: -1px;
+    transition: all 0.12s ease;
   }
 
-  .ptr-del-btn:hover {
-    opacity: 1;
-    color: #ef4444;
-    background: color-mix(in srgb, #ef4444 15%, transparent);
+  .ctx-color-dot:hover {
+    transform: scale(1.18);
+  }
+
+  .ctx-color-dot.is-active {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px currentColor;
+    transform: scale(1.1);
+  }
+
+  .ctx-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
   }
 
   .ptr-label {
-    padding: 0 2px;
+    padding: 0 4px;
+    min-width: 14px;
+    text-align: center;
     cursor: pointer;
+    letter-spacing: 0.02em;
+    border-radius: 3px;
+    font-size: 11.5px;
+    line-height: 20px;
+    transition: background 0.12s ease;
+  }
+
+  .ptr-label:hover {
+    background: color-mix(in srgb, currentColor 14%, transparent);
   }
 
   .ptr-edit-input {
-    width: 28px;
-    border: none;
+    width: 30px;
+    height: 18px;
+    border: 1px solid currentColor;
     background: color-mix(in srgb, var(--surface) 90%, transparent);
     color: inherit;
     font: inherit;
     padding: 0 2px;
-    border-radius: 2px;
-    outline: 1px solid currentColor;
+    border-radius: 3px;
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 25%, transparent);
     text-align: center;
   }
 
   .ptr-arrow {
     position: absolute;
-    bottom: -4px;
+    bottom: -5px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 3.5px solid transparent;
-    border-right: 3.5px solid transparent;
-    border-top: 4px solid currentColor;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+    pointer-events: none;
   }
 
-  /* ── Index and Cell Styles ─────────────────────────────────────────────── */
+  /* Index and Cell Styles */
   .idx {
     font: 600 11px var(--mono);
     color: var(--muted-2);
@@ -1127,26 +1617,249 @@
     width: 100%;
   }
 
-  /* ── Sliding Window Caption ────────────────────────────────────────────── */
-  .window-caption {
-    margin-top: 6px;
+  /* ── Sliding Window Bar (Option A) ─────────────────────────────────────── */
+  .window-bar {
+    margin-top: 8px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font: 600 10.5px var(--mono);
-    color: var(--muted);
-    padding: 2px 6px;
-    background: color-mix(in srgb, var(--surface-2) 65%, transparent);
-    border-radius: 4px;
-    border: 1px dashed var(--border);
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 3px 5px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     user-select: none;
+    max-width: 100%;
+    animation: windowBarFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .window-tag {
+  @keyframes windowBarFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(3px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Slide Window Controls */
+  .window-nav-group {
+    display: inline-flex;
+    align-items: center;
+    background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px;
+    gap: 1px;
+  }
+
+  .window-nav-btn {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.12s ease;
+  }
+
+  .window-nav-btn:hover:not(:disabled) {
+    color: var(--accent-primary);
+    background: color-mix(in srgb, var(--accent-primary) 14%, var(--surface));
+  }
+
+  .window-nav-btn:active:not(:disabled) {
+    transform: scale(0.9);
+  }
+
+  .window-nav-btn:disabled {
+    opacity: 0.22;
+    cursor: not-allowed;
+  }
+
+  .window-nav-divider {
+    width: 1px;
+    height: 12px;
+    background: var(--border);
+  }
+
+  /* Window Chips */
+  .window-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    background: color-mix(in srgb, var(--surface-2) 65%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font: 600 11px/1.3 var(--mono);
+    color: var(--text-h);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .window-chip:hover {
+    border-color: var(--border-strong);
+    background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+  }
+
+  .chip-label {
+    color: var(--muted);
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .chip-val {
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .chip-num {
+    color: var(--text-h);
+  }
+
+  .chip-accent {
+    color: var(--accent-primary);
+    font-weight: 800;
+  }
+
+  .chip-quote {
+    color: #06b6d4;
+    font-weight: 700;
+  }
+
+  :global(.dark) .chip-quote, :global([data-theme="dark"]) .chip-quote {
+    color: #22d3ee;
+  }
+
+  .chip-good {
+    color: #10b981;
+  }
+
+  .chip-warn {
+    color: #f59e0b;
+  }
+
+  .unique-badge,
+  .dup-badge {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 3px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .unique-badge {
+    background: color-mix(in srgb, #10b981 18%, transparent);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+
+  :global(.dark) .unique-badge, :global([data-theme="dark"]) .unique-badge {
+    color: #34d399;
+  }
+
+  .dup-badge {
+    background: color-mix(in srgb, #f59e0b 18%, transparent);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+
+  :global(.dark) .dup-badge, :global([data-theme="dark"]) .dup-badge {
+    color: #fbbf24;
+  }
+
+  .chip-ptrs {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .range-bounds {
     color: var(--accent-primary);
   }
 
-  .window-len {
-    color: var(--muted-2);
+  .chip-ptr-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 14px;
+    display: inline-block;
+  }
+
+  .ptr-tag-cyan {
+    background: color-mix(in srgb, #06b6d4 20%, var(--surface));
+    color: #0891b2;
+    border: 1px solid rgba(6, 182, 212, 0.4);
+  }
+  .ptr-tag-rose {
+    background: color-mix(in srgb, #f43f5e 20%, var(--surface));
+    color: #e11d48;
+    border: 1px solid rgba(244, 63, 94, 0.4);
+  }
+  .ptr-tag-purple {
+    background: color-mix(in srgb, #a855f7 20%, var(--surface));
+    color: #9333ea;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+  }
+  .ptr-tag-emerald {
+    background: color-mix(in srgb, #10b981 20%, var(--surface));
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+  .ptr-tag-amber {
+    background: color-mix(in srgb, #f59e0b 20%, var(--surface));
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+
+  :global(.dark) .ptr-tag-cyan, :global([data-theme="dark"]) .ptr-tag-cyan { color: #22d3ee; }
+  :global(.dark) .ptr-tag-rose, :global([data-theme="dark"]) .ptr-tag-rose { color: #fb7185; }
+  :global(.dark) .ptr-tag-purple, :global([data-theme="dark"]) .ptr-tag-purple { color: #c084fc; }
+  :global(.dark) .ptr-tag-emerald, :global([data-theme="dark"]) .ptr-tag-emerald { color: #34d399; }
+  :global(.dark) .ptr-tag-amber, :global([data-theme="dark"]) .ptr-tag-amber { color: #fbbf24; }
+
+  /* Copy Subarray Button */
+  .window-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    height: 22px;
+    font: 600 10.5px var(--sans);
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .window-copy-btn:hover {
+    color: var(--text-h);
+    border-color: var(--border-strong);
+    background: color-mix(in srgb, var(--accent-primary) 10%, var(--surface-2));
+  }
+
+  .window-copy-btn.copied {
+    color: #10b981;
+    border-color: #10b981;
+    background: color-mix(in srgb, #10b981 12%, var(--surface));
   }
 </style>
