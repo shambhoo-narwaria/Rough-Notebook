@@ -339,7 +339,14 @@
     const onCtx = (e: MouseEvent) => {
       if (penActive && !autoHandwritingActive.value) return;
       const t = e.target as HTMLElement | null;
-      if (t?.closest(".ptr-badge") || t?.closest(".ptr-context-menu") || t?.closest(".pointer-menu-wrap")) {
+      if (
+        t?.closest(".ptr-badge") ||
+        t?.closest(".ptr-context-menu") ||
+        t?.closest(".cell-context-menu") ||
+        t?.closest(".cell") ||
+        t?.closest(".idx") ||
+        t?.closest(".pointer-menu-wrap")
+      ) {
         return;
       }
       const b = doc.blocks.find((x) => x.id === blockId);
@@ -1975,7 +1982,7 @@
 
   .placed:not(.spine-placed) {
     width: max-content;
-    max-width: min(92vw, 960px);
+    max-width: none;
     min-width: min-content;
     box-sizing: border-box;
     padding: 0;

@@ -28,6 +28,10 @@
   let activeContextMenuPointerId = $state<string | null>(null);
   let activeContextMenuEl = $state<HTMLDivElement | null>(null);
   let contextMenuPos = $state<{ x: number; y: number } | null>(null);
+  let cellContextMenu = $state<{ index: number; x: number; y: number } | null>(null);
+  let cellContextMenuEl = $state<HTMLDivElement | null>(null);
+  let customPointerNameInput = $state('');
+  let showCustomNameInput = $state(false);
 
   $effect(() => {
     registerBlockRoot(block.id, root);
@@ -41,10 +45,14 @@
     if (activeContextMenuPointerId && activeContextMenuEl && !activeContextMenuEl.contains(e.target as Node)) {
       activeContextMenuPointerId = null;
     }
+    if (cellContextMenu && cellContextMenuEl && !cellContextMenuEl.contains(e.target as Node)) {
+      cellContextMenu = null;
+      showCustomNameInput = false;
+    }
   }
 
   $effect(() => {
-    if (pointerMenuOpen || activeContextMenuPointerId) {
+    if (pointerMenuOpen || activeContextMenuPointerId || cellContextMenu) {
       window.addEventListener('mousedown', handleDocumentClick);
       return () => window.removeEventListener('mousedown', handleDocumentClick);
     }
@@ -224,12 +232,16 @@
         selectedPointerId = null;
         pointerMenuOpen = false;
         activeContextMenuPointerId = null;
+        cellContextMenu = null;
+        showCustomNameInput = false;
         return;
       }
     }
 
-    if (activeContextMenuPointerId && e.key === 'Escape') {
+    if ((activeContextMenuPointerId || cellContextMenu) && e.key === 'Escape') {
       activeContextMenuPointerId = null;
+      cellContextMenu = null;
+      showCustomNameInput = false;
       return;
     }
 
@@ -317,6 +329,46 @@
     }
   }
 
+  function handleCellContextMenu(index: number, e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    activeContextMenuPointerId = null;
+    pointerMenuOpen = false;
+    showCustomNameInput = false;
+    customPointerNameInput = '';
+
+    if (root) {
+      const rect = root.getBoundingClientRect();
+      const x = e.clientX ? e.clientX - rect.left : 20;
+      const y = e.clientY ? e.clientY - rect.top : 20;
+      const maxX = Math.max(0, rect.width - 215);
+      cellContextMenu = {
+        index,
+        x: Math.max(4, Math.min(maxX, x)),
+        y: Math.max(4, y),
+      };
+    } else {
+      cellContextMenu = { index, x: 20, y: 20 };
+    }
+  }
+
+  function handleAddPointerAtIndex(index: number, name?: string, color?: ArrayPointer['color']) {
+    const defaultNames = ['i', 'j', 'mid', 'L', 'R', 'k', 'cur', 'slow', 'fast'];
+    const usedNames = new Set((block.pointers ?? []).map((p) => p.name));
+    const pointerName = name || defaultNames.find((n) => !usedNames.has(n)) || `p${(block.pointers?.length ?? 0) + 1}`;
+    addArrayPointer(block.id, pointerName, index, color);
+    const newPtr = block.pointers?.[block.pointers.length - 1];
+    if (newPtr) selectedPointerId = newPtr.id;
+    cellContextMenu = null;
+    showCustomNameInput = false;
+  }
+
+  function handleMoveSelectedPointerTo(index: number) {
+    if (!selectedPointerId) return;
+    moveArrayPointer(block.id, selectedPointerId, index, true);
+    cellContextMenu = null;
+  }
+
   function handleCopyWindowSlice(e: MouseEvent) {
     e.stopPropagation();
     if (!windowRange) return;
@@ -349,6 +401,7 @@
   }
 
   function handleAddCell() {
+    if (block.values.length >= 32) return;
     pushUndoPoint();
     block.values.push(randomSampleInt(1, 20));
   }
@@ -377,7 +430,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="wrap"
-  class:menu-open={pointerMenuOpen || activeContextMenuPointerId !== null}
+  class:menu-open={pointerMenuOpen || activeContextMenuPointerId !== null || cellContextMenu !== null}
   bind:this={root}
   tabindex="0"
   role="application"
@@ -632,14 +685,20 @@
           <div
             class="idx"
             class:idx-window={inWindow}
-            title={selectedPointerId ? `Click to snap selected pointer to index [${i}]` : `Index ${i}`}
+            title={selectedPointerId ? `Click to snap selected pointer to index [${i}]` : `Index ${i}. Right-click to add pointer.`}
             onclick={() => handleIndexClick(i)}
+            oncontextmenu={(e) => handleCellContextMenu(i, e)}
           >
             {i}
           </div>
 
           <!-- Array Cell -->
-          <div class="cell" class:cell-window={inWindow}>
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="cell"
+            class:cell-window={inWindow}
+            oncontextmenu={(e) => handleCellContextMenu(i, e)}
+          >
             <input
               class="val"
               data-cell-input
@@ -651,6 +710,7 @@
               oninput={(e) => {
                 block.values[i] = e.currentTarget.value;
               }}
+              oncontextmenu={(e) => handleCellContextMenu(i, e)}
             />
           </div>
         </div>
@@ -665,7 +725,8 @@
             type="button"
             class="cell-add-btn"
             onclick={handleAddCell}
-            title="Add cell to array"
+            disabled={block.values.length >= 32}
+            title={block.values.length >= 32 ? "Maximum 32 cells reached" : "Add cell to array"}
             aria-label="Add cell"
           >
             <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -886,6 +947,139 @@
       </button>
     </div>
   {/if}
+
+  <!-- Cell Context Menu (Right Click on Cell or Index) -->
+  {#if cellContextMenu}
+    {@const cellIdx = cellContextMenu.index}
+    {@const cellVal = block.values[cellIdx]}
+    {@const selectedPtr = pointers.find((p) => p.id === selectedPointerId)}
+    {@const cellPtrs = pointersAtIndex(cellIdx)}
+
+    <div
+      class="cell-context-menu"
+      bind:this={cellContextMenuEl}
+      style="left: {cellContextMenu.x}px; top: {cellContextMenu.y}px;"
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => {
+        if (e.key === 'Escape') {
+          cellContextMenu = null;
+          showCustomNameInput = false;
+        }
+      }}
+      role="menu"
+      tabindex="-1"
+    >
+      <div class="ctx-cell-header">
+        <span class="ctx-title">Cell [{cellIdx}]</span>
+        <span class="ctx-cell-val" title="Current value">{cellVal !== '' ? `"${cellVal}"` : '(empty)'}</span>
+      </div>
+
+      <!-- Primary Action: Quick Add Next Pointer -->
+      <button
+        type="button"
+        class="ctx-primary-btn"
+        onclick={() => handleAddPointerAtIndex(cellIdx)}
+        title="Add next pointer at this index"
+      >
+        <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="3" x2="8" y2="13" />
+          <line x1="3" y1="8" x2="13" y2="8" />
+        </svg>
+        <span>Add Pointer at [{cellIdx}]</span>
+      </button>
+
+      <!-- Quick Preset Chips: i, j, mid, L, R -->
+      <div class="ctx-preset-section">
+        <span class="ctx-preset-label">Quick Name:</span>
+        <div class="ctx-chips-row">
+          {#each ['i', 'j', 'mid', 'L', 'R'] as name}
+            {@const isUsed = pointers.some((p) => p.name.toLowerCase() === name.toLowerCase())}
+            <button
+              type="button"
+              class="ctx-preset-chip"
+              class:chip-used={isUsed}
+              title={isUsed ? `Pointer "${name}" already exists` : `Add pointer "${name}" at index ${cellIdx}`}
+              onclick={() => handleAddPointerAtIndex(cellIdx, name)}
+            >
+              +{name}
+            </button>
+          {/each}
+          <button
+            type="button"
+            class="ctx-preset-chip ctx-chip-more"
+            title="Custom pointer name"
+            onclick={() => {
+              showCustomNameInput = !showCustomNameInput;
+            }}
+          >
+            {showCustomNameInput ? '▲' : '...'}
+          </button>
+        </div>
+
+        {#if showCustomNameInput}
+          <div class="ctx-custom-row">
+            <input
+              type="text"
+              class="ctx-custom-input"
+              placeholder="Name..."
+              maxlength="8"
+              bind:value={customPointerNameInput}
+              onkeydown={(e) => {
+                e.stopPropagation();
+                if (e.key === 'Enter' && customPointerNameInput.trim()) {
+                  handleAddPointerAtIndex(cellIdx, customPointerNameInput.trim());
+                }
+                if (e.key === 'Escape') showCustomNameInput = false;
+              }}
+              use:selectOnMount
+            />
+            <button
+              type="button"
+              class="ctx-custom-add-btn"
+              disabled={!customPointerNameInput.trim()}
+              onclick={() => {
+                if (customPointerNameInput.trim()) {
+                  handleAddPointerAtIndex(cellIdx, customPointerNameInput.trim());
+                }
+              }}
+            >
+              Add
+            </button>
+          </div>
+        {/if}
+      </div>
+
+      <!-- Move Selected Pointer Here (if active and not already at this cell) -->
+      {#if selectedPtr && selectedPtr.index !== cellIdx}
+        <div class="ctx-divider"></div>
+        <button
+          type="button"
+          class="ctx-item-btn"
+          onclick={() => handleMoveSelectedPointerTo(cellIdx)}
+          title={`Move pointer "${selectedPtr.name}" from index ${selectedPtr.index} to ${cellIdx}`}
+        >
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="11 5 14 8 11 11" />
+            <line x1="2" y1="8" x2="14" y2="8" />
+          </svg>
+          <span class="ctx-item-label">Move <strong>{selectedPtr.name}</strong> here</span>
+        </button>
+      {/if}
+
+      <!-- Current Pointers at this index (if any) -->
+      {#if cellPtrs.length > 0}
+        <div class="ctx-divider"></div>
+        <div class="ctx-ptrs-here">
+          <span class="ctx-ptrs-here-label">Pointers here:</span>
+          <div class="ctx-ptrs-list">
+            {#each cellPtrs as cp (cp.id)}
+              <span class="chip-ptr-tag ptr-tag-{cp.color ?? 'cyan'}">{cp.name}</span>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -897,7 +1091,7 @@
     transition: all 0.15s ease;
     min-width: 0;
     width: fit-content;
-    max-width: min(92vw, 960px);
+    max-width: none;
     position: relative;
     z-index: 2;
   }
@@ -950,9 +1144,9 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    height: 22px;
+    height: 24px;
     padding: 0 8px;
-    border-radius: 9999px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(14px);
@@ -974,6 +1168,10 @@
     transform: translateY(-1px);
   }
 
+  .capsule-btn:active {
+    transform: translateY(0) scale(0.97);
+  }
+
   .capsule-icon {
     font-size: 11px;
     line-height: 1;
@@ -992,9 +1190,9 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    height: 22px;
-    padding: 0 7px;
-    border-radius: 9999px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(14px);
@@ -1012,6 +1210,10 @@
     border-color: color-mix(in srgb, var(--accent-r) 40%, var(--border));
     color: var(--accent-r);
     transform: translateY(-1px);
+  }
+
+  .clear-capsule-btn:active {
+    transform: translateY(0) scale(0.97);
   }
 
   /* ── Dropdown of Pointer Options ────────────────────────────────────────── */
@@ -1140,7 +1342,7 @@
   /* ── Array Structure ────────────────────────────────────────────────────── */
   .scale {
     width: fit-content;
-    max-width: min(92vw, 960px);
+    max-width: none;
   }
 
   .row {
@@ -1167,7 +1369,9 @@
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
+    gap: 4px;
     align-items: center;
+    width: min-content;
     opacity: 0.35;
     transition: opacity 0.15s ease;
   }
@@ -1494,6 +1698,180 @@
     height: 1px;
     background: var(--border);
     margin: 4px 0;
+  }
+
+  /* ── Cell Right-Click Context Menu ───────────────────────────────────────── */
+  .cell-context-menu {
+    position: absolute;
+    width: 205px;
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25), 0 4px 14px rgba(0, 0, 0, 0.15);
+    z-index: 600;
+    padding: 6px;
+    animation: ptrCtxPop 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+  }
+
+  .ctx-cell-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 5px;
+  }
+
+  .ctx-cell-val {
+    font: 700 11px var(--mono);
+    color: var(--accent-primary);
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ctx-primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid color-mix(in srgb, var(--accent-primary) 35%, transparent);
+    background: color-mix(in srgb, var(--accent-primary) 12%, var(--surface-2));
+    color: var(--accent-primary);
+    font: 700 11px var(--sans);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    margin-bottom: 6px;
+  }
+
+  .ctx-primary-btn:hover {
+    background: color-mix(in srgb, var(--accent-primary) 22%, var(--surface-2));
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--accent-primary-glow);
+  }
+
+  .ctx-primary-btn:active {
+    transform: scale(0.98);
+  }
+
+  .ctx-preset-section {
+    padding: 2px 4px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ctx-preset-label {
+    font: 600 10px var(--sans);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .ctx-chips-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .ctx-preset-chip {
+    padding: 2px 6px;
+    font: 700 10.5px var(--mono);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-h);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .ctx-preset-chip:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: color-mix(in srgb, var(--accent-primary) 12%, var(--surface-2));
+    transform: translateY(-1px);
+  }
+
+  .ctx-preset-chip.chip-used {
+    opacity: 0.6;
+    border-style: dashed;
+  }
+
+  .ctx-chip-more {
+    color: var(--muted);
+  }
+
+  .ctx-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .ctx-custom-input {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-h);
+    font: 700 11px var(--mono);
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .ctx-custom-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 1px var(--accent-primary);
+  }
+
+  .ctx-custom-add-btn {
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 4px;
+    border: none;
+    background: var(--accent-primary);
+    color: #fff;
+    font: 700 10.5px var(--sans);
+    cursor: pointer;
+    transition: opacity 0.12s ease;
+  }
+
+  .ctx-custom-add-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .ctx-ptrs-here {
+    padding: 4px 6px 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ctx-ptrs-here-label {
+    font: 600 10px var(--sans);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .ctx-ptrs-list {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
   }
 
   .ptr-label {

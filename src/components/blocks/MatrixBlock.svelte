@@ -110,7 +110,7 @@
     transition: all 0.15s ease;
     min-width: 0;
     width: fit-content;
-    max-width: min(92vw, 960px);
+    max-width: none;
   }
 
   .wrap:focus-visible {
@@ -119,7 +119,7 @@
 
   .scale {
     width: fit-content;
-    max-width: min(92vw, 960px);
+    max-width: none;
   }
 
   .table {
